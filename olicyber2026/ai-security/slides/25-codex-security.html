@@ -1,0 +1,34 @@
+<section>
+  <h2 class="section-title">Codex — Security Model</h2>
+  <div class="two-col">
+    <div class="col">
+      <div class="card card-purple">
+        <div class="card-header">Claude Code</div>
+        <ul class="card-list">
+          <li>Permessi granulari per tool/comando</li>
+          <li>Allow/deny list con regex</li>
+          <li>Rete sempre disponibile</li>
+          <li>Sandbox = policy-level (allowlist)</li>
+          <li>.claude/settings.json nella repo</li>
+          <li>Repo puó pre-autorizzare comandi</li>
+        </ul>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card card-blue">
+        <div class="card-header">Codex</div>
+        <ul class="card-list">
+          <li>3 livelli di autonomia (coarse)</li>
+          <li>Approval policy: on-request / never</li>
+          <li>Rete disabilitata di default</li>
+          <li>Sandbox = OS-level (Seatbelt/bwrap)</li>
+          <li>AGENTS.md nella repo</li>
+          <li>Repo NON puó cambiare permessi</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="textbox" style="margin-top: 20px;">
+    <p class="fragment"><span class="inline-tag tag-red">Key diff</span> Claude Code: la repo puó alloware comandi → rischio supply chain. Codex: sandbox OS-level + no network → meno superficie ma meno flessibilitá</p>
+  </div>
+</section>

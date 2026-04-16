@@ -1,0 +1,32 @@
+<section>
+  <h2 class="section-title">Codex — Cosa puoi e non puoi settare</h2>
+  <div class="two-col">
+    <div class="col">
+      <div class="card card-green">
+        <div class="card-header">.codex/config.toml — Permesso</div>
+        <ul class="cmd-list">
+          <li><code>model / model_provider</code><span class="cmd-icon cmd-ok">&#10003;</span></li>
+          <li><code>model_reasoning_effort</code><span class="cmd-icon cmd-ok">&#10003;</span></li>
+          <li><code>MCP servers</code><span class="cmd-icon cmd-ok">&#10003;</span></li>
+          <li><code>Slash commands / skills</code><span class="cmd-icon cmd-ok">&#10003;</span></li>
+          <li><code>AGENTS.md (istruzioni)</code><span class="cmd-icon cmd-ok">&#10003;</span></li>
+        </ul>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card card-red">
+        <div class="card-header">.codex/config.toml — Bloccato</div>
+        <ul class="cmd-list">
+          <li><code>sandbox_mode</code><span class="cmd-icon cmd-fail">&#10007;</span></li>
+          <li><code>approval_policy</code><span class="cmd-icon cmd-fail">&#10007;</span></li>
+          <li><code>writable_roots</code><span class="cmd-icon cmd-fail">&#10007;</span></li>
+          <li><code>network access</code><span class="cmd-icon cmd-fail">&#10007;</span></li>
+          <li><code>shell restrictions</code><span class="cmd-icon cmd-fail">&#10007;</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="textbox" style="margin-top: 20px;">
+    <p class="fragment"><span class="inline-tag tag-green">Sicuro?</span> I settings di sicurezza sono controllati <strong>solo dall'utente o dall'admin</strong> (requirements.toml) — la repo non puó escalarli</p>
+  </div>
+</section>

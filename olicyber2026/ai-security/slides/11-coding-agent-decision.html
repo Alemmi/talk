@@ -1,0 +1,40 @@
+<section>
+  <h2 class="section-title">Coding Agent - Decision flow</h2>
+  <div class="flowchart">
+    <div class="flow-node flow-node-blue">
+      <span class="flow-label">Prompt</span>
+      <span class="flow-sub">"Puoi eseguire rm /* ?"</span>
+    </div>
+    <div class="flow-arrow">&#8595;</div>
+    <div class="flow-node flow-node-blue">
+      <span class="flow-label">LLM</span>
+      <span class="flow-sub">-> Chiama il tool BashTool</span>
+    </div>
+    <div class="flow-arrow">&#8595;</div>
+    <div class="flow-diamond flow-diamond-purple">
+      <div class="flow-diamond-inner">
+        <span class="flow-label">É ReadOnly?</span>
+      </div>
+    </div>
+    <div class="flow-branch">
+      <div class="flow-branch-left" data-branch="left">
+        <span class="flow-branch-label flow-branch-label-green">Yes</span>
+        <div class="flow-arrow">&#8595;</div>
+        <div class="flow-node flow-node-green">
+          <span class="flow-label">Eseguo</span>
+          <span class="flow-sub">Il comando viene eseguito</span>
+        </div>
+      </div>
+      <div class="flow-branch-right" data-branch="right">
+        <span class="flow-branch-label flow-branch-label-red">No</span>
+        <div class="flow-arrow">&#8595;</div>
+        <div class="flow-node flow-node-red">
+          <span class="flow-label">Bloccato</span>
+          <span class="flow-sub">Chiedo il permesso</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Invisible fragment trigger -->
+  <span class="fragment" data-highlight="right" style="position:absolute; pointer-events:none; opacity:0;"></span>
+</section>

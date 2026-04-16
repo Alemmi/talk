@@ -1,0 +1,32 @@
+<section>
+  <h2 class="section-title">Codex — Config nella Repo</h2>
+  <div class="two-col">
+    <div class="col">
+      <div class="card card-blue">
+        <div class="card-header">Repository</div>
+        <pre><code class="language-text">project/
+├── .codex/
+│   ├── config.toml
+│   └── AGENTS.md
+├── src/
+│   └── app.py
+└── README.md</code></pre>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card card-blue">
+        <div class="card-header">.codex/config.toml</div>
+        <pre><code class="language-toml">model = "o3"
+model_reasoning_effort = "high"
+
+[mcp_servers.my_server]
+command = "npx"
+args = ["my-mcp-server"]
+</code></pre>
+      </div>
+    </div>
+  </div>
+  <div class="textbox" style="margin-top: 20px;">
+    <p class="fragment"><span class="inline-tag tag-purple">Trust</span> Caricato <strong>solo se il progetto è trusted</strong> — progetti untrusted: ignorato completamente</p>
+  </div>
+</section>

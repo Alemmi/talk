@@ -1,0 +1,49 @@
+<section>
+  <h2 class="section-title">Denylist Globale vs Settings Locali</h2>
+  <div class="two-col">
+    <div class="col">
+      <div class="card card-red">
+        <div class="card-header">.claude/settings.json (repo)</div>
+        <pre><code class="language-json">{
+  "permissions": {
+    "allow": [
+      "Bash(curl:*)",
+      "Bash(rm:*)",
+      "Bash(python3:*)"
+    ]
+  }
+}</code></pre>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card card-green">
+        <div class="card-header">~/.claude/settings.json (globale)</div>
+        <pre><code class="language-json">{
+  "permissions": {
+    "deny": [
+      "Bash(curl:*)",
+      "Bash(rm:*)"
+    ]
+  }
+}</code></pre>
+      </div>
+    </div>
+  </div>
+  <div class="flowchart" style="margin-top: 24px;">
+    <div class="flow-branch">
+      <div class="flow-branch-left" data-branch="left">
+        <div class="flow-node flow-node-red">
+          <span class="flow-label">curl / rm</span>
+          <span class="flow-sub">Allow locale + Deny globale</span>
+        </div>
+      </div>
+      <div class="flow-branch-right" data-branch="right">
+        <div class="flow-node flow-node-green">
+          <span class="flow-label">python3</span>
+          <span class="flow-sub">Allow locale, no deny</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <span class="fragment" data-highlight="left" style="position:absolute; pointer-events:none; opacity:0;"></span>
+</section>

@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI in Cybersecurity — CyberSecNatLab</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/black.css" id="theme">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/highlight/monokai.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+      <section data-external-replace="slides/01-cover.html"></section>
+      <section data-external-replace="slides/02-whoami.html"></section>
+      <section data-external-replace="slides/03-agenda.html"></section>
+      <section data-external-replace="slides/04-section-intro.html"></section>
+      <section data-external-replace="slides/05-stats.html"></section>
+      <section data-external-replace="slides/06-coding-agent.html"></section>
+      <section data-external-replace="slides/07-coding-agent-tool.html"></section>
+      <section data-external-replace="slides/08-coding-agent-tool-example.html"></section>
+      <section data-external-replace="slides/09-coding-agent-sandbox.html"></section>
+      <section data-external-replace="slides/10-coding-agent-decision.html"></section>
+      <section data-external-replace="slides/11-coding-agent-decision.html"></section>
+      <section data-external-replace="slides/12-coding-agent-decision.html"></section>
+      <section data-external-replace="slides/13-coding-agent-command.html"></section>
+      <section data-external-replace="slides/14-use-case-readonly-cmd.html"></section>
+      <section data-external-replace="slides/15-section-use-case.html"></section>
+      <section data-external-replace="slides/16-use-case-vettori.html"></section>
+      <section data-external-replace="slides/17-use-case-esempio.html"></section>
+      <section data-external-replace="slides/18-use-case-claude.html"></section>
+      <section data-external-replace="slides/19-claude-settings-override.html"></section>
+      <section data-external-replace="slides/20-claude-denylist.html"></section>
+      <section data-external-replace="slides/21-use-case-codex.html"></section>
+      <section data-external-replace="slides/22-codex-sandbox.html"></section>
+      <section data-external-replace="slides/23-codex-config.html"></section>
+      <section data-external-replace="slides/24-codex-config-limits.html"></section>
+      <section data-external-replace="slides/25-codex-security.html"></section>
+      <section data-external-replace="slides/26-section-bypass-codex.html"></section>
+      <section data-external-replace="slides/27-codex-readonly-cmd.html"></section>
+      <section data-external-replace="slides/28-use-case-sus.html"></section>
+      <section data-external-replace="slides/29-bare-repo-intro.html"></section>
+      <section data-external-replace="slides/30-bare-repo-attack.html"></section>
+      <section data-external-replace="slides/31-bare-repo-exploit.html"></section>
+      <section data-external-replace="slides/32-use-case-claude.html"></section>
+      <!-- <section data-external-replace="slides/10-attack-surface.html"></section> -->
+      <!-- <section data-external-replace="slides/11-demo.html"></section> -->
+      <!-- <section data-external-replace="slides/12-takeaways.html"></section> -->
+      <!-- <section data-external-replace="slides/13-closing.html"></section> -->
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/highlight/highlight.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/notes/notes.js"></script>
+  <script>
+    Reveal.initialize({
+      hash: true,
+      slideNumber: 'c/t',
+      width: 1280,
+      height: 720,
+      margin: 0.04,
+      transition: 'slide',
+      transitionSpeed: 'default',
+      backgroundTransition: 'fade',
+      plugins: [RevealHighlight, RevealNotes],
+      dependencies: [
+        {
+          src: 'lib/external.js',
+          condition: function() {
+            return !!document.querySelector('[data-external],[data-external-replace]');
+          }
+        }
+      ]
+    });
+  </script>
+</body>
+</html>

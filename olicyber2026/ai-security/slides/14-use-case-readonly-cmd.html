@@ -1,0 +1,29 @@
+<section>
+  <h2 class="section-title">Analisi Comandi - ReadOnly?</h2>
+  <div class="two-col">
+    <div class="col">
+      <div class="card">
+        <div class="card-header">$ BashTool</div>
+        <ul class="cmd-list">
+          <li><code>ls -la ./</code><span class="cmd-icon cmd-ok">&#10003;</span></li>
+          <li><code>cat ./README.md</code><span class="cmd-icon cmd-ok">&#10003;</span></li>
+          <li><code>echo 1 > ./miao</code><span class="cmd-icon cmd-fail">&#10007;</span></li>
+          <li><code>find ./ -name "*.env" -type f</code><span class="cmd-icon cmd-ok">&#10003;</span></li>
+          <li><code>find ./ -name "*.env" -type f -exec rm {} \;</code><span class="cmd-icon cmd-fail">&#10007;</span></li>
+          <li><code>git status</code><span class="cmd-icon cmd-ok">&#10003;</span></li>
+          <li><code>git diff</code><span class="cmd-icon cmd-ok">&#10003;</span></li>
+          <li><code>git commit -m "foo"</code><span class="cmd-icon cmd-fail">&#10007;</span></li>
+        </ul>
+      </div>
+    </div>
+    <div class="col">
+      <div class="textbox">
+        <p><strong>BashTool</strong> — come funziona?</p>
+        <p>Ha una whitelist di comandi e argomenti</p>
+        <p class="fragment"><span class="inline-tag tag-red">-exec</span></p>
+        <p class="fragment"><span class="inline-tag tag-red">status/commit</span></p>
+        <p class="fragment"><span class="inline-tag tag-red">Redirection</span></p>
+      </div>
+    </div>
+  </div>
+</section>

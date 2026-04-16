@@ -1,0 +1,21 @@
+<section>
+  <h2 class="section-title">Codex — Sandbox Model</h2>
+  <div class="bigbox-row">
+    <div class="bigbox bigbox-green fragment" data-box="1">
+      <span class="bigbox-title">Read-Only</span>
+      <span class="bigbox-sub">Legge file, nessun edit o comando senza approvazione. Rete disabilitata.</span>
+    </div>
+    <div class="bigbox bigbox-blue fragment" data-box="2">
+      <span class="bigbox-title">Workspace-Write</span>
+      <span class="bigbox-sub">Edit e comandi nella workspace. Rete disabilitata. Default.</span>
+    </div>
+    <div class="bigbox bigbox-red fragment" data-box="3">
+      <span class="bigbox-title">Full-Access (--yolo)</span>
+      <span class="bigbox-sub">Nessun sandbox. Filesystem e rete senza limiti.</span>
+    </div>
+  </div>
+  <div class="textbox" style="margin-top: 24px;">
+    <p class="fragment"><span class="inline-tag tag-green">OS-level</span> Sandbox enforced da Seatbelt (macOS), bubblewrap (Linux), Windows Sandbox (PowerShell)</p>
+    <p class="fragment"><span class="inline-tag tag-purple">Network</span> Rete <strong>sempre disabilitata</strong> tranne in full-access — niente curl, wget, fetch</p>
+  </div>
+</section>

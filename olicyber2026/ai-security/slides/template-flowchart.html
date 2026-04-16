@@ -1,0 +1,30 @@
+<section>
+  <h2 class="section-title">Flusso di Attacco</h2>
+  <div class="flowchart">
+    <div class="flow-node flow-node-red">
+      <span class="flow-label">Prompt Injection</span>
+    </div>
+    <div class="flow-arrow">&#8595;</div>
+    <div class="flow-diamond flow-diamond-purple">
+      <div class="flow-diamond-inner">
+        <span class="flow-label">Sandbox?</span>
+      </div>
+    </div>
+    <div class="flow-branch">
+      <div class="flow-branch-left">
+        <span class="flow-branch-label flow-branch-label-green">Yes</span>
+        <div class="flow-arrow">&#8595;</div>
+        <div class="flow-node flow-node-green">
+          <span class="flow-label">Blocked</span>
+        </div>
+      </div>
+      <div class="flow-branch-right">
+        <span class="flow-branch-label flow-branch-label-red">No</span>
+        <div class="flow-arrow">&#8595;</div>
+        <div class="flow-node flow-node-red">
+          <span class="flow-label">Code Execution</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
