@@ -1153,3 +1153,177 @@ section:has(.fragment.visible[data-highlight="right"]) .flow-branch [data-branch
   font-size: 0.45em;
   margin-top: 14px;
 }
+
+/* =============================================
+   TIMELINE / CHAIN VISUALIZATION
+   Used in the asymmetry & race-outcome slides
+   ============================================= */
+
+.timeline-block {
+  margin-top: 12px;
+}
+
+.timeline-caption {
+  font-family: var(--font-mono);
+  font-size: 0.55em;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.timeline-row {
+  display: flex;
+  align-items: stretch;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.tl-step {
+  width: 130px;
+  background: var(--bg-card);
+  border: 1px solid var(--bg-card-border);
+  border-radius: 10px;
+  padding: 12px 8px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  transition: transform 0.2s, border-color 0.2s;
+}
+
+.tl-step:hover {
+  transform: translateY(-2px);
+}
+
+.tl-step .tl-id {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+.tl-step .tl-name {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.5em;
+  font-weight: 400;
+  color: var(--text-muted);
+  margin-top: 6px;
+  letter-spacing: 0;
+}
+
+/* sync hop — narrow, dashed, faded */
+.tl-step.tl-sync {
+  width: 60px;
+  border-style: dashed;
+  background: rgba(139, 92, 246, 0.04);
+  border-color: rgba(139, 92, 246, 0.3);
+  opacity: 0.7;
+}
+.tl-step.tl-sync .tl-id { color: var(--text-muted); }
+
+/* the readlink — purple highlight, the "extra hop" */
+.tl-step.tl-key {
+  border-color: rgba(139, 92, 246, 0.55);
+  background: rgba(139, 92, 246, 0.10);
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.18);
+}
+.tl-step.tl-key .tl-id { color: var(--purple); }
+
+/* critical syscall — red */
+.tl-step.tl-danger {
+  border-color: rgba(239, 68, 68, 0.55);
+  background: rgba(239, 68, 68, 0.08);
+}
+.tl-step.tl-danger .tl-id { color: var(--red); }
+
+/* completed step — green tint */
+.tl-step.tl-done {
+  border-color: rgba(34, 197, 94, 0.55);
+  background: rgba(34, 197, 94, 0.08);
+}
+.tl-step.tl-done .tl-id { color: var(--green); }
+
+/* arrows between steps */
+.tl-arrow {
+  display: flex;
+  align-items: center;
+  color: var(--text-muted);
+  font-size: 0.9em;
+  width: 14px;
+  justify-content: center;
+}
+
+/* gap annotation at end of S row */
+.tl-gap {
+  width: 134px; /* matches the visual width of one missing F hop */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 14px;
+  font-family: var(--font-mono);
+  font-size: 0.5em;
+  font-weight: 700;
+  color: var(--purple);
+  border: 2px dashed rgba(139, 92, 246, 0.5);
+  border-radius: 10px;
+  padding: 4px;
+  text-align: center;
+  line-height: 1.3;
+  background: rgba(139, 92, 246, 0.04);
+}
+
+/* state-of-the-world frames for the race-outcome slide */
+.frame-row {
+  display: flex;
+  gap: 14px;
+  align-items: stretch;
+}
+
+.frame {
+  flex: 1;
+  background: var(--bg-card);
+  border: 1px solid var(--bg-card-border);
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.frame-tick {
+  font-family: var(--font-mono);
+  font-size: 0.55em;
+  font-weight: 700;
+  color: var(--purple);
+  letter-spacing: 0.05em;
+}
+
+.frame-event {
+  font-size: 0.7em;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.frame-disk {
+  font-family: var(--font-mono);
+  font-size: 0.5em;
+  background: rgba(0, 0, 0, 0.04);
+  border-radius: 6px;
+  padding: 8px 10px;
+  color: var(--text-secondary);
+  white-space: pre;
+  line-height: 1.5;
+}
+
+.frame-disk strong { color: var(--text-primary); }
+.frame-disk .added { color: var(--green); font-weight: 700; }
+.frame-disk .pwned { color: var(--red); font-weight: 700; }
+
+.frame.frame-bad { border-color: rgba(239, 68, 68, 0.4); }
+.frame.frame-bad .frame-tick { color: var(--red); }

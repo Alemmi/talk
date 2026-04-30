@@ -1,0 +1,40 @@
+<section>
+  <h2 class="section-title">The asymmetry &mdash; what the disk sees</h2>
+
+  <div class="frame-row">
+    <div class="frame">
+      <span class="frame-tick">t = 0</span>
+      <span class="frame-event">decompress() called</span>
+      <div class="frame-disk">dist/
+&nbsp;&nbsp;<em>(empty)</em>
+
+/tmp/pwned
+&nbsp;&nbsp;<em>(does not exist)</em></div>
+    </div>
+
+    <div class="frame">
+      <span class="frame-tick">t &asymp; 4 &middot; T<sub>io</sub></span>
+      <span class="frame-event">S6: <code>symlink(2)</code> completes</span>
+      <div class="frame-disk">dist/
+&nbsp;&nbsp;<span class="added">aaaaa &rarr; /tmp/pwned</span>
+
+/tmp/pwned
+&nbsp;&nbsp;<em>(still does not exist)</em></div>
+    </div>
+
+    <div class="frame frame-bad">
+      <span class="frame-tick">t &asymp; 5 &middot; T<sub>io</sub></span>
+      <span class="frame-event">F6: <code>open(2)</code> follows the symlink</span>
+      <div class="frame-disk">dist/
+&nbsp;&nbsp;aaaaa &rarr; /tmp/pwned
+
+/tmp/pwned
+&nbsp;&nbsp;<span class="pwned">"ARBITRARY WRITE"</span></div>
+    </div>
+  </div>
+
+  <div class="textbox" style="margin-top: 18px;">
+    <p><span class="inline-tag tag-red">The kill</span> Between <code>t&nbsp;&asymp;&nbsp;4&middot;T<sub>io</sub></code> and <code>t&nbsp;&asymp;&nbsp;5&middot;T<sub>io</sub></code>, the filesystem holds a symlink at the exact path the file chain is about to write. The check on <code>F4</code> ran a hop earlier, when there was nothing there.</p>
+    <p><span class="inline-tag tag-cyan">Reliability</span> The exploit is <strong>not</strong> winning a race &mdash; it is exploiting a structural inequality of async hops. Every run, every host, every filesystem.</p>
+  </div>
+</section>

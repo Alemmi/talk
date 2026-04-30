@@ -1,20 +1,42 @@
 <section>
   <h2 class="section-title">The asymmetry &mdash; visualized</h2>
-  <div class="card full-width">
-    <pre><code class="language-text">      time &rarr;
 
-  F:  F1&mdash;&mdash;F2&mdash;&mdash;F3&mdash;&mdash;<span style="color: var(--purple); font-weight: 700;">F4 readlink</span>&mdash;&mdash;F5 realpath&mdash;&mdash;<span style="color: var(--red); font-weight: 700;">F6 OPEN(dest)</span> &#9472;&#9472;&#9492;
-                                                                       &#9474;
-                                                                       &#9474; opens an existing
-                                                                       &#9474; symlink &rarr; follows
-                                                                       &#9474; it &rarr; writes target
-                                                                       &#9474;
-  S:  S1&mdash;&mdash;S2&mdash;&mdash;S3&mdash;&mdash;<span style="color: var(--text-muted);">S4 (sync)</span>&mdash;&mdash;S5 realpath&mdash;&mdash;<span style="color: var(--red); font-weight: 700;">S6 SYMLINK(dest)</span> &#9472;&#9472;&#9492;
-
-                                  &#9580;&#9472;&#9472;&#9472;&#9472;&#9472; one full T_io of gap &#9472;&#9472;&#9472;&#9472;&#9472;&#9580;</code></pre>
+  <div class="timeline-block">
+    <div class="timeline-caption">file chain &mdash; 6 awaitable I/O hops</div>
+    <div class="timeline-row">
+      <div class="tl-step"><span class="tl-id">F1</span><span class="tl-name">makeDir</span></div>
+      <div class="tl-arrow">&rarr;</div>
+      <div class="tl-step"><span class="tl-id">F2</span><span class="tl-name">realpath</span></div>
+      <div class="tl-arrow">&rarr;</div>
+      <div class="tl-step"><span class="tl-id">F3</span><span class="tl-name">safeMakeDir</span></div>
+      <div class="tl-arrow">&rarr;</div>
+      <div class="tl-step tl-key"><span class="tl-id">F4 &#9733;</span><span class="tl-name">readlink</span></div>
+      <div class="tl-arrow">&rarr;</div>
+      <div class="tl-step"><span class="tl-id">F5</span><span class="tl-name">realpath</span></div>
+      <div class="tl-arrow">&rarr;</div>
+      <div class="tl-step tl-danger"><span class="tl-id">F6</span><span class="tl-name">OPEN(dest)</span></div>
+    </div>
   </div>
-  <div class="textbox" style="margin-top: 20px;">
-    <p><span class="inline-tag tag-purple">Key insight</span> The race between <code>F6</code> and <code>S6</code> is <em>not</em> &ldquo;two syscalls fired at the same instant.&rdquo; It&apos;s &ldquo;two pipelines where one has one extra I/O hop before its critical syscall.&rdquo;</p>
-    <p><span class="inline-tag tag-cyan">Therefore</span> by the time the file chain even <em>submits</em> its <code>open(2)</code>, the symlink chain has already <em>completed</em> its <code>symlink(2)</code>. The check on <code>F4</code> is pointless &mdash; the symlink lands in the gap between the check and the use.</p>
+
+  <div class="timeline-block">
+    <div class="timeline-caption">symlink chain &mdash; 5 awaitable I/O hops (S4 is sync)</div>
+    <div class="timeline-row">
+      <div class="tl-step"><span class="tl-id">S1</span><span class="tl-name">makeDir</span></div>
+      <div class="tl-arrow">&rarr;</div>
+      <div class="tl-step"><span class="tl-id">S2</span><span class="tl-name">realpath</span></div>
+      <div class="tl-arrow">&rarr;</div>
+      <div class="tl-step"><span class="tl-id">S3</span><span class="tl-name">safeMakeDir</span></div>
+      <div class="tl-arrow">&rarr;</div>
+      <div class="tl-step tl-sync"><span class="tl-id">S4</span><span class="tl-name">(sync)</span></div>
+      <div class="tl-arrow">&rarr;</div>
+      <div class="tl-step"><span class="tl-id">S5</span><span class="tl-name">realpath</span></div>
+      <div class="tl-arrow">&rarr;</div>
+      <div class="tl-step tl-danger"><span class="tl-id">S6</span><span class="tl-name">SYMLINK(dest)</span></div>
+      <div class="tl-gap">gap<br>&asymp; 1 &middot; T<sub>io</sub></div>
+    </div>
+  </div>
+
+  <div class="textbox" style="margin-top: 18px;">
+    <p><span class="inline-tag tag-purple">Read it as a Gantt chart</span> Time flows left&nbsp;&rarr;&nbsp;right. Each box is one async hop. <strong>S4 is narrow and dashed</strong> &mdash; it&apos;s a sync passthrough, costs ~0. So the symlink chain finishes its critical syscall <strong>one full I/O hop before</strong> the file chain reaches its <code>open(2)</code>.</p>
   </div>
 </section>
