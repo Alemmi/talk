@@ -1058,3 +1058,98 @@ section:has(.fragment.visible[data-highlight="right"]) .flow-branch [data-branch
     flex-direction: column;
   }
 }
+
+/* =============================================
+   DECOMPRESS DECK — COMPACT DENSITY OVERRIDES
+   Goal: keep every slide inside the 1280x720 viewport
+   ============================================= */
+
+.reveal .slides section {
+  padding-top: 28px !important;
+}
+
+.reveal .section-title {
+  font-size: 1.4em !important;
+  margin-bottom: 22px !important;
+}
+
+/* Tighter cards & code blocks */
+.reveal .card-header {
+  font-size: 0.5em;
+  padding: 8px 16px;
+}
+.reveal .card pre {
+  padding: 12px 16px !important;
+}
+.reveal .card pre code {
+  font-size: 0.5em !important;
+  line-height: 1.5 !important;
+}
+
+/* Tighter textboxes */
+.reveal .textbox {
+  padding: 14px 20px;
+  font-size: 0.7em;
+  line-height: 1.45;
+}
+.reveal .textbox p + p {
+  margin-top: 8px;
+}
+
+/* Tighter lists */
+.reveal .styled-list li {
+  padding: 10px 14px;
+  margin-bottom: 8px;
+  font-size: 0.65em;
+  line-height: 1.4;
+}
+.reveal .card-list {
+  padding: 10px 14px;
+}
+.reveal .card-list li {
+  font-size: 0.62em;
+  padding: 3px 0;
+  line-height: 1.4;
+}
+.reveal .info-list li {
+  font-size: 0.7em;
+  padding: 8px 0;
+}
+
+/* Tighter flow nodes */
+.reveal .flow-node {
+  padding: 12px 22px;
+  min-width: 200px;
+}
+.reveal .flow-label {
+  font-size: 0.7em;
+}
+.reveal .flow-sub {
+  font-size: 0.48em;
+  margin-top: 2px;
+}
+.reveal .flow-arrow {
+  font-size: 1.1em;
+  padding: 2px 0;
+}
+.reveal .flowchart-h .flow-node {
+  padding: 12px 18px;
+}
+
+/* Bigboxes */
+.reveal .bigbox {
+  padding: 26px 18px;
+  gap: 8px;
+}
+.reveal .bigbox-title {
+  font-size: 0.78em;
+}
+.reveal .bigbox-sub {
+  font-size: 0.52em;
+}
+
+/* slide-note tighter */
+.reveal .slide-note {
+  font-size: 0.45em;
+  margin-top: 14px;
+}

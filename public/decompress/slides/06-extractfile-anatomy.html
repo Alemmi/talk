@@ -1,32 +1,25 @@
 <section>
   <h2 class="section-title">extractFile &mdash; the dispatcher</h2>
   <div class="card card-blue full-width">
-    <div class="card-header">index.js (lines 54&ndash;76, condensed)</div>
-    <pre><code class="language-javascript">const extractFile = (input, output, opts) =&gt; runPlugins(input, opts).then(files =&gt; {
-  // ... strip / filter / map ...
+    <div class="card-header">index.js (condensed)</div>
+    <pre><code class="language-javascript">return Promise.all(files.map(x =&gt; {                          //  &#9668; ALL entries in parallel
+  const dest = path.join(output, x.path);
 
-  return Promise.all(files.map(x =&gt; {                        //  &#9668; ALL entries in parallel
-    const dest = path.join(output, x.path);
-    const mode = x.mode &amp; ~process.umask();
-
-    if (x.type === 'directory') { /* mkdir + utimes */ }
-
-    return makeDir(output)
-      .then(outputPath =&gt; fsP.realpath(outputPath))
-      .then(realOutputPath =&gt; safeMakeDir(path.dirname(dest), realOutputPath)
-                              .then(() =&gt; realOutputPath))
-      .then(realOutputPath =&gt; x.type === 'file'
-            ? preventWritingThroughSymlink(dest, realOutputPath)            //  check
-            : realOutputPath)
-      .then(realOutputPath =&gt; fsP.realpath(path.dirname(dest)).then(/*containment*/))
-      .then(() =&gt; {
-        if (x.type === 'symlink') return fsP.symlink(x.linkname, dest);     //  use S
-        return fsP.writeFile(dest, x.data, {mode});                         //  use F
-      });
-  }));
-});</code></pre>
+  return makeDir(output)
+    .then(outputPath =&gt; fsP.realpath(outputPath))
+    .then(realOutputPath =&gt; safeMakeDir(path.dirname(dest), realOutputPath)
+                            .then(() =&gt; realOutputPath))
+    .then(realOutputPath =&gt; x.type === 'file'
+          ? preventWritingThroughSymlink(dest, realOutputPath)              // CHECK
+          : realOutputPath)
+    .then(realOutputPath =&gt; fsP.realpath(path.dirname(dest)).then(/*containment*/))
+    .then(() =&gt; {
+      if (x.type === 'symlink') return fsP.symlink(x.linkname, dest);       // USE  S
+      return fsP.writeFile(dest, x.data, {mode});                           // USE  F
+    });
+}));</code></pre>
   </div>
-  <div class="textbox" style="margin-top: 16px;">
+  <div class="textbox" style="margin-top: 14px;">
     <p><span class="inline-tag tag-red">Red flag #1</span> Every entry is processed concurrently via <code>Promise.all</code> &mdash; no per-path serialisation.</p>
     <p><span class="inline-tag tag-red">Red flag #2</span> The symlink check is <strong>per-entry</strong>, not <strong>per-archive</strong>.</p>
   </div>
