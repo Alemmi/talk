@@ -1,30 +1,34 @@
 <section>
-  <h2 class="section-title">Impact &mdash; from arbitrary write to RCE</h2>
-  <div class="bigbox-row">
-    <div class="bigbox bigbox-red fragment" data-box="1">
-      <span class="bigbox-title">~/.ssh/authorized_keys</span>
-      <span class="bigbox-sub">Plant attacker key &rarr; remote shell on next login</span>
+  <h2 class="section-title">Impact &mdash; in Node, AFW <em>is</em> RCE</h2>
+
+  <div class="textbox" style="border-color: rgba(239,68,68,0.45); background: rgba(239,68,68,0.05);">
+    <p><span class="inline-tag tag-red">Punchline</span> You don&apos;t need <code>~/.ssh/authorized_keys</code>. You don&apos;t need a cron file. You don&apos;t need a writable <code>node_modules/.bin</code>. Every running Node process turns arbitrary file write into <strong>arbitrary code execution</strong> &mdash; even on a read-only filesystem.</p>
+  </div>
+
+  <div class="flowchart-h" style="margin-top: 18px;">
+    <div class="flow-node flow-node-red">
+      <span class="flow-label">1. libuv pipe fd</span>
+      <span class="flow-sub">anonymous pipe for signal / async wakeups, visible at <code>/proc/&lt;pid&gt;/fd/</code></span>
     </div>
-    <div class="bigbox bigbox-red fragment" data-box="2">
-      <span class="bigbox-title">~/.bashrc, ~/.profile</span>
-      <span class="bigbox-sub">Append payload &rarr; runs on next interactive shell</span>
+    <div class="flow-arrow"></div>
+    <div class="flow-node flow-node-red">
+      <span class="flow-label">2. craft struct</span>
+      <span class="flow-sub"><code>uv__signal_msg_t</code> with a fake <code>uv_signal_s</code> handle and chosen <code>signum</code></span>
     </div>
-    <div class="bigbox bigbox-red fragment" data-box="3">
-      <span class="bigbox-title">cron / systemd unit</span>
-      <span class="bigbox-sub">Drop a job in <code>/etc/cron.d/</code> if root, <code>~/.config/systemd/user/</code> otherwise</span>
+    <div class="flow-arrow"></div>
+    <div class="flow-node flow-node-red">
+      <span class="flow-label">3. libuv reads</span>
+      <span class="flow-sub">next event-loop iteration dispatches &ldquo;your signal&rdquo;</span>
+    </div>
+    <div class="flow-arrow"></div>
+    <div class="flow-node flow-node-red">
+      <span class="flow-label">4. signal_cb fires</span>
+      <span class="flow-sub">function pointer in the fake handle &rarr; ROP gadget &rarr; RCE</span>
     </div>
   </div>
-  <div class="bigbox-row" style="margin-top: 20px;">
-    <div class="bigbox bigbox-red fragment" data-box="4">
-      <span class="bigbox-title">.git/hooks/post-checkout</span>
-      <span class="bigbox-sub">Triggers on next <code>git pull</code> in any repo</span>
-    </div>
-    <div class="bigbox bigbox-red fragment" data-box="5">
-      <span class="bigbox-title">node_modules/.bin/...</span>
-      <span class="bigbox-sub">Overwrite a CLI binary that the next <code>npm script</code> invokes</span>
-    </div>
-  </div>
-  <div class="textbox" style="margin-top: 24px;">
-    <p><span class="inline-tag tag-red">Realistic targets</span> CI runners that extract user-supplied archives, electron auto-updaters, AI coding agents that download &amp; unpack tool bundles, package registries with archive-based publishing.</p>
+
+  <div class="textbox" style="margin-top: 18px;">
+    <p><span class="inline-tag tag-purple">Why it works in Node</span> Official builds ship as <strong>non-PIE</strong> &mdash; the Node segment is loaded at a fixed, known address, so ROP gadgets and the address of <code>uv_signal_s</code>-shaped data are predictable to the attacker.</p>
+    <p><span class="inline-tag tag-cyan">Reference</span> Sonar &mdash; <em>Why Code Security Matters Even in Hardened Environments</em><br><code style="font-size: 0.85em;">sonarsource.com/blog/why-code-security-matters-even-in-hardened-environments/</code></p>
   </div>
 </section>
