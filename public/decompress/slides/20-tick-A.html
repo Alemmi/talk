@@ -1,0 +1,44 @@
+<section>
+  <h2 class="section-title">Tick A &mdash; right after <code>safeMakeDir</code></h2>
+  <div class="textbox">
+    <p>Both chains have completed <code>F3 = S3</code> (<code>safeMakeDir</code>) at roughly the same poll-phase iteration. The <code>.then()</code> callback at <code>index.js:96&ndash;102</code> runs in the microtask drain.</p>
+  </div>
+  <div class="two-col" style="margin-top: 20px;">
+    <div class="col">
+      <div class="card card-blue">
+        <div class="card-header">F chain &mdash; what runs in the drain</div>
+        <pre><code class="language-javascript">.then(realOutputPath =&gt; {
+  if (x.type === 'file') {
+    return preventWritingThroughSymlink(
+              dest, realOutputPath);   // submits readlink
+  }
+  return realOutputPath;
+})</code></pre>
+        <ul class="card-list">
+          <li>Submits <strong>F4 = readlink(dest)</strong> to libuv pool</li>
+          <li>Returns a pending Promise &mdash; chain parks</li>
+          <li>1 I/O in flight, no further microtask progress</li>
+        </ul>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card card-purple">
+        <div class="card-header">S chain &mdash; what runs in the drain</div>
+        <pre><code class="language-javascript">.then(realOutputPath =&gt; {
+  if (x.type === 'file') { ... }
+  return realOutputPath;        // sync passthrough &mdash; no I/O
+})
+.then(realOutputPath =&gt; {
+  return fsP.realpath(             // submits realpath
+           path.dirname(dest)).then(/*check*/);
+})</code></pre>
+        <ul class="card-list">
+          <li>S4 returns synchronously &mdash; <strong>same drain</strong> queues the next <code>.then()</code></li>
+          <li>Next microtask submits <strong>S5 = realpath(dirname(dest))</strong></li>
+          <li>1 I/O in flight, but already at hop 5 conceptually</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <p class="slide-note" style="margin-top: 16px;">After this drain: F is parked on F4 (readlink), S is parked on S5 (realpath). S has skipped one whole I/O hop.</p>
+</section>

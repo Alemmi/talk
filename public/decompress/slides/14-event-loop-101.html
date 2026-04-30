@@ -1,0 +1,29 @@
+<section>
+  <h2 class="section-title">Event Loop 101 &mdash; two queues</h2>
+  <div class="two-col">
+    <div class="col">
+      <div class="card card-purple">
+        <div class="card-header">Microtask queue</div>
+        <ul class="card-list">
+          <li><strong>What</strong>: <code>.then()</code> callbacks, <code>await</code> resumptions, <code>queueMicrotask</code>, <code>process.nextTick</code></li>
+          <li><strong>Cost</strong>: ~free &mdash; pure JS, no syscall</li>
+          <li><strong>Drained</strong>: fully, between every macrotask</li>
+        </ul>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card card-blue">
+        <div class="card-header">Macrotask queue (libuv phases)</div>
+        <ul class="card-list">
+          <li><strong>What</strong>: I/O completion callbacks, timers, <code>setImmediate</code>, close events</li>
+          <li><strong>Cost</strong>: at least one syscall + thread-pool round trip</li>
+          <li><strong>Drained</strong>: one task per phase per loop turn</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="textbox" style="margin-top: 24px;">
+    <p><span class="inline-tag tag-purple">Golden rule</span> Between two macrotasks the microtask queue is drained <strong>to empty</strong>. So when an I/O completes, its <code>.then()</code> chain runs synchronously until it hits the next async I/O.</p>
+    <p class="fragment"><span class="inline-tag tag-cyan">Mental model</span> An I/O syscall is a <em>checkpoint</em>; everything between two checkpoints is one atomic burst of microtasks.</p>
+  </div>
+</section>

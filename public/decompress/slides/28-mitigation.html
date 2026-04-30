@@ -1,0 +1,44 @@
+<section>
+  <h2 class="section-title">Closing the gap &mdash; three layers</h2>
+  <div class="two-col">
+    <div class="col">
+      <div class="card card-green">
+        <div class="card-header">1. Use <code>O_NOFOLLOW</code> on the open</div>
+        <pre><code class="language-javascript">const fd = await fsP.open(dest,
+  fs.constants.O_WRONLY |
+  fs.constants.O_CREAT  |
+  fs.constants.O_TRUNC  |
+  fs.constants.O_NOFOLLOW,
+  mode);
+await fsP.write(fd, x.data);
+await fsP.close(fd);</code></pre>
+      </div>
+      <div class="card card-green" style="margin-top: 16px;">
+        <div class="card-header">2. Reject duplicate paths up front</div>
+        <pre><code class="language-javascript">const seen = new Set();
+for (const f of files) {
+  const norm = path.posix.normalize(f.path);
+  if (seen.has(norm)) {
+    throw new Error('duplicate entry: ' + norm);
+  }
+  seen.add(norm);
+}</code></pre>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card card-green">
+        <div class="card-header">3. Serialize entry extraction</div>
+        <pre><code class="language-javascript">// Replace Promise.all(files.map(...))
+for (const x of files) {
+  await extractOne(x, output, opts);
+}</code></pre>
+      </div>
+      <div class="textbox" style="margin-top: 16px;">
+        <p><span class="inline-tag tag-purple">Why all three</span> Each one alone is sufficient for the duplicate-name case. Together they remove the entire class of bug:</p>
+        <p>(1) prevents <em>any</em> open from following an unexpected symlink &mdash; the strongest, smallest patch.</p>
+        <p>(2) prevents the malicious archive from even being processed.</p>
+        <p>(3) collapses the inter-chain race into a sequential check-then-use; safer foundation for future changes.</p>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,27 @@
+<section>
+  <h2 class="section-title">Takeaways</h2>
+  <div class="content-box">
+    <ul class="styled-list">
+      <li class="fragment">
+        <span class="list-marker">&#9656;</span>
+        <div><strong>Async &ne; safe</strong>. <code>Promise.all</code> over user-controlled work items is concurrent code &mdash; analyse it like threads, not like a loop</div>
+      </li>
+      <li class="fragment">
+        <span class="list-marker">&#9656;</span>
+        <div><strong>Count async hops, not microseconds</strong>. Inter-chain TOCTOU is decided by the structural difference in I/O hops, not by syscall durations</div>
+      </li>
+      <li class="fragment">
+        <span class="list-marker">&#9656;</span>
+        <div><strong>A check on path X means nothing</strong> if another concurrent task is allowed to mutate path X. Either lock the path, hold an fd, or use <code>O_NOFOLLOW</code></div>
+      </li>
+      <li class="fragment">
+        <span class="list-marker">&#9656;</span>
+        <div><strong>Archive duplicates are weird</strong>. Both tar and zip allow same-named entries &mdash; treat them as a hostile signal, not a legitimate use case</div>
+      </li>
+      <li class="fragment">
+        <span class="list-marker">&#9656;</span>
+        <div><strong>Audit the unused branches</strong>. The symlink branch had no <code>preventWritingThroughSymlink</code> &mdash; the protection only covered <em>some</em> code paths</div>
+      </li>
+    </ul>
+  </div>
+</section>

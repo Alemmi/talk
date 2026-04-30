@@ -1,0 +1,22 @@
+<section>
+  <h2 class="section-title">The unit of speed: the <em>async hop</em></h2>
+  <div class="textbox">
+    <p>An <strong>async hop</strong> = one round-trip through libuv. Conceptually:</p>
+    <p style="font-family: var(--font-mono); font-size: 0.85em;">submit&nbsp;&rarr;&nbsp;thread runs syscall&nbsp;&rarr;&nbsp;completion signal&nbsp;&rarr;&nbsp;callback fires&nbsp;&rarr;&nbsp;microtasks drain</p>
+  </div>
+  <div class="bigbox-row" style="margin-top: 24px;">
+    <div class="bigbox bigbox-purple" data-box="1">
+      <span class="bigbox-title">1 async hop</span>
+      <span class="bigbox-sub">~tens of &micro;s on warm cache &mdash; dominated by thread sync, not the syscall itself</span>
+    </div>
+    <div class="bigbox bigbox-cyan" data-box="2">
+      <span class="bigbox-title">N <code>.then()</code> in a row<br>(no I/O)</span>
+      <span class="bigbox-sub">~free &mdash; runs in the same microtask drain, ~hundreds of ns total</span>
+    </div>
+    <div class="bigbox bigbox-red" data-box="3">
+      <span class="bigbox-title">Inter-chain races</span>
+      <span class="bigbox-sub">decided not by syscall durations but by <strong>how many hops you sit through</strong> before your write</span>
+    </div>
+  </div>
+  <p class="slide-note" style="margin-top: 24px;">If chain A has one fewer I/O than chain B before reaching its critical syscall, A wins by ~one full hop &mdash; orders of magnitude more than scheduler jitter.</p>
+</section>

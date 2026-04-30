@@ -1,0 +1,25 @@
+<section>
+  <h2 class="section-title">Where <code>fs</code> calls actually run</h2>
+  <div class="flowchart">
+    <div class="flow-node flow-node-blue">
+      <span class="flow-label">JS main thread</span>
+      <span class="flow-sub"><code>fsP.readlink(dest)</code> &rarr; submit work item, return Promise pending</span>
+    </div>
+    <div class="flow-arrow">&#8595;</div>
+    <div class="flow-node flow-node-purple">
+      <span class="flow-label">libuv thread pool</span>
+      <span class="flow-sub">4 worker threads (default <code>UV_THREADPOOL_SIZE=4</code>) executing real syscalls</span>
+    </div>
+    <div class="flow-arrow">&#8595;</div>
+    <div class="flow-node flow-node-cyan">
+      <span class="flow-label">completion signal</span>
+      <span class="flow-sub">worker writes to a pipe / eventfd &mdash; main thread wakes up</span>
+    </div>
+    <div class="flow-arrow">&#8595;</div>
+    <div class="flow-node flow-node-blue">
+      <span class="flow-label">poll phase callback</span>
+      <span class="flow-sub">runs as macrotask &mdash; resolves the Promise &mdash; drains the <code>.then()</code> chain</span>
+    </div>
+  </div>
+  <p class="slide-note" style="margin-top: 24px;">Promise chains parallelise across the pool, but each <em>chain&apos;s</em> own steps are still serialized: hop N+1 cannot start until hop N&apos;s callback runs.</p>
+</section>

@@ -1,0 +1,32 @@
+<section>
+  <h2 class="section-title">The bug, in one picture</h2>
+  <div class="two-col">
+    <div class="col">
+      <div class="card card-red">
+        <div class="card-header">malicious.tar &mdash; two entries, same name</div>
+        <pre><code class="language-text">[entry 1]  type=symlink
+           name='aaaaa'
+           linkname='/tmp/pwned'
+
+[entry 2]  type=file
+           name='aaaaa'
+           data='ARBITRARY WRITE'
+           mode=0644</code></pre>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card card-red">
+        <div class="card-header">After decompress() resolves</div>
+        <pre><code class="language-text">$ ls -la dist/
+lrwxrwxrwx  aaaaa -&gt; /tmp/pwned
+
+$ cat /tmp/pwned
+ARBITRARY WRITE</code></pre>
+      </div>
+    </div>
+  </div>
+  <div class="textbox" style="margin-top: 24px;">
+    <p>The symlink check is <em>per-entry</em>. Entry&nbsp;2 looks at <code>dist/aaaaa</code> &mdash; nothing there yet &mdash; check passes. Meanwhile entry&nbsp;1 races ahead, plants the symlink. Then entry&nbsp;2&apos;s <code>writeFile</code> follows it.</p>
+    <p class="fragment"><span class="inline-tag tag-red">Effect</span> Anywhere the running process can write &mdash; cron files, shell rc, SSH keys, package hooks, build outputs &mdash; the attacker can write.</p>
+  </div>
+</section>

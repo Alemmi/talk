@@ -1,0 +1,61 @@
+<section>
+  <h2 class="section-title">Per-entry pipeline</h2>
+  <div class="flowchart-h">
+    <div class="flow-node flow-node-blue">
+      <span class="flow-label">makeDir</span>
+      <span class="flow-sub">output dir</span>
+    </div>
+    <div class="flow-arrow"></div>
+    <div class="flow-node flow-node-blue">
+      <span class="flow-label">realpath</span>
+      <span class="flow-sub">output dir</span>
+    </div>
+    <div class="flow-arrow"></div>
+    <div class="flow-node flow-node-blue">
+      <span class="flow-label">safeMakeDir</span>
+      <span class="flow-sub">parent of dest</span>
+    </div>
+    <div class="flow-arrow"></div>
+    <div class="flow-diamond flow-diamond-purple">
+      <div class="flow-diamond-inner">
+        <span class="flow-label">type ==<br>'file'?</span>
+      </div>
+    </div>
+  </div>
+  <div class="flow-branch" style="margin-top: 24px;">
+    <div class="flow-branch-left" data-branch="left">
+      <span class="flow-branch-label flow-branch-label-blue">file</span>
+      <div class="flowchart-h" style="margin-top: 8px;">
+        <div class="flow-node flow-node-purple">
+          <span class="flow-label">readlink(dest)</span>
+          <span class="flow-sub">prevent symlink write</span>
+        </div>
+        <div class="flow-arrow"></div>
+        <div class="flow-node flow-node-blue">
+          <span class="flow-label">realpath</span>
+          <span class="flow-sub">containment</span>
+        </div>
+        <div class="flow-arrow"></div>
+        <div class="flow-node flow-node-red">
+          <span class="flow-label">writeFile</span>
+          <span class="flow-sub">open + write + close</span>
+        </div>
+      </div>
+    </div>
+    <div class="flow-branch-right" data-branch="right">
+      <span class="flow-branch-label flow-branch-label-purple">symlink</span>
+      <div class="flowchart-h" style="margin-top: 8px;">
+        <div class="flow-node flow-node-blue">
+          <span class="flow-label">realpath</span>
+          <span class="flow-sub">containment</span>
+        </div>
+        <div class="flow-arrow"></div>
+        <div class="flow-node flow-node-red">
+          <span class="flow-label">symlink</span>
+          <span class="flow-sub">linkname &rarr; dest</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="slide-note" style="margin-top: 20px;">The <code>readlink</code> hop exists <strong>only</strong> on the file branch. Remember it &mdash; it&apos;s the whole story.</p>
+</section>

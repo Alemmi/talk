@@ -1,0 +1,46 @@
+<section>
+  <h2 class="section-title">preventWritingThroughSymlink</h2>
+  <div class="two-col">
+    <div class="col">
+      <div class="card card-purple">
+        <div class="card-header">index.js:37&ndash;52</div>
+        <pre><code class="language-javascript">const preventWritingThroughSymlink =
+  (destination, realOutputPath) =&gt; {
+    return fsP.readlink(destination)
+      .catch(_ =&gt; {
+        // No file, or not a symlink:
+        // not an escape we worry about here.
+        return null;
+      })
+      .then(symlinkPointsTo =&gt; {
+        if (symlinkPointsTo) {
+          throw new Error(
+            'Refusing to write into a symlink');
+        }
+        return realOutputPath;
+      });
+  };</code></pre>
+      </div>
+    </div>
+    <div class="col">
+      <ul class="styled-list">
+        <li>
+          <span class="list-marker">&#9656;</span>
+          <div><strong>Intent</strong> &mdash; if <code>dest</code> is already a symlink, refuse to write through it</div>
+        </li>
+        <li>
+          <span class="list-marker">&#9656;</span>
+          <div><strong>Mechanism</strong> &mdash; <code>readlink()</code>. If it succeeds &rarr; symlink exists &rarr; throw. If <code>ENOENT</code> &rarr; safe</div>
+        </li>
+        <li>
+          <span class="list-marker">&#9656;</span>
+          <div><strong>Implicit assumption</strong> &mdash; the filesystem state seen at <em>check</em> time is the state at <em>use</em> time</div>
+        </li>
+        <li>
+          <span class="list-marker">&#9656;</span>
+          <div><span class="inline-tag tag-red">TOCTOU</span> classic check-then-use, with <strong>3 async hops between them</strong></div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>

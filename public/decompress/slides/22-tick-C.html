@@ -1,0 +1,23 @@
+<section>
+  <h2 class="section-title">Tick C &mdash; <code>symlink(2)</code> lands on disk</h2>
+  <div class="textbox">
+    <p>The libuv pool is processing F5 and S6 in parallel on different worker threads. Both syscalls are fast, but the symlink chain is the only one that can already <strong>mutate the filesystem</strong>.</p>
+  </div>
+  <div class="flowchart" style="margin-top: 16px;">
+    <div class="flow-node flow-node-purple">
+      <span class="flow-label">Worker thread #2 runs <code>symlink("/tmp/pwned", "dist/aaaaa")</code></span>
+      <span class="flow-sub">kernel creates a directory entry pointing to <code>/tmp/pwned</code> &mdash; no further checks</span>
+    </div>
+    <div class="flow-arrow">&#8595;</div>
+    <div class="flow-node flow-node-red">
+      <span class="flow-label">Filesystem state mutated</span>
+      <span class="flow-sub"><code>dist/aaaaa</code> is now a symlink. Anyone opening that path with default flags will follow it.</span>
+    </div>
+    <div class="flow-arrow">&#8595;</div>
+    <div class="flow-node flow-node-cyan">
+      <span class="flow-label">Completion signal &rarr; main thread</span>
+      <span class="flow-sub">S chain&apos;s <code>.then()</code> resolves &mdash; chain heads toward post-write <code>utimes</code> (skipped: <code>x.type !== 'file'</code>)</span>
+    </div>
+  </div>
+  <p class="slide-note" style="margin-top: 24px;">Meanwhile F5&apos;s <code>realpath</code> may also have completed &mdash; but its callback merely <em>plans</em> to submit <code>writeFile</code>. The symlink already exists when that submission happens.</p>
+</section>

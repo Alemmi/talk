@@ -1,0 +1,17 @@
+<section>
+  <h2 class="section-title">File chain &mdash; counted in I/O hops</h2>
+  <div class="card card-blue full-width">
+    <div class="card-header">Entry: <code>{ type:'file', path:'aaaaa', data:'ARBITRARY WRITE' }</code></div>
+    <pre><code class="language-text">F1   makeDir(output)             [I/O]   mkdir + EEXIST catch
+F2   realpath(output)            [I/O]
+F3   safeMakeDir(dirname(dest))  [I/O*3] realpath + mkdir + realpath
+F4   preventWritingThroughSymlink[I/O]   readlink(dest)         &#9733; only on file branch
+F5   realpath(dirname(dest))     [I/O]
+F6   writeFile(dest, x.data)     [I/O*3] open + write + close
+F7   utimes(dest, ...)           [I/O]   (post-write, irrelevant for the race)</code></pre>
+  </div>
+  <div class="textbox" style="margin-top: 20px;">
+    <p><span class="inline-tag tag-purple">Hop count to the dangerous syscall</span> Before the <code>open(2)</code> inside <code>writeFile</code>, the chain has been through <strong>F1 + F2 + F3 + F4 + F5 = ~5 awaitable I/O steps</strong> (counting <code>safeMakeDir</code> as one logical hop, since both chains pay it equally).</p>
+    <p><span class="inline-tag tag-red">Critical syscall</span> <code>open(dest, O_WRONLY | O_CREAT | O_TRUNC, mode)</code> &mdash; no <code>O_NOFOLLOW</code>.</p>
+  </div>
+</section>

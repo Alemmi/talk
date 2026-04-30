@@ -1,0 +1,47 @@
+<section>
+  <h2 class="section-title"><code>fs.writeFile</code> &mdash; the dangerous default</h2>
+  <div class="two-col">
+    <div class="col">
+      <div class="card card-red">
+        <div class="card-header">node:lib/internal/fs/promises.js (excerpt)</div>
+        <pre><code class="language-javascript">async function writeFile(path, data, options) {
+  options = getOptions(options, {
+    encoding: 'utf8',
+    mode: 0o666,
+    flag: 'w',                  //  &#9668; O_WRONLY | O_CREAT | O_TRUNC
+    flush: false,
+  });
+  // ...
+  const fd = await open(path,
+                        options.flag,
+                        options.mode);   //  &#9668; symlinks are followed
+  try {
+    await writeFileHandle(fd, data, ...);
+  } finally {
+    await fd.close();
+  }
+}</code></pre>
+      </div>
+    </div>
+    <div class="col">
+      <ul class="styled-list">
+        <li>
+          <span class="list-marker">&#9656;</span>
+          <div><strong>Default flag</strong> is <code>'w'</code> &mdash; no <code>O_NOFOLLOW</code></div>
+        </li>
+        <li>
+          <span class="list-marker">&#9656;</span>
+          <div><strong>Three syscalls</strong> per <code>writeFile</code>: <code>open</code>, <code>write</code>, <code>close</code> &mdash; only the first matters for the symlink race</div>
+        </li>
+        <li>
+          <span class="list-marker">&#9656;</span>
+          <div><strong>O_CREAT + symlink-to-nowhere</strong> &rarr; the file is created at the symlink target; the symlink is no longer dangling</div>
+        </li>
+        <li>
+          <span class="list-marker">&#9656;</span>
+          <div><strong>O_TRUNC</strong> &rarr; if the target exists, it is truncated. Existing files get clobbered</div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>

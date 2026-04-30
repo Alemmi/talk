@@ -1,0 +1,45 @@
+<section>
+  <h2 class="section-title">Tick B &mdash; F4 and S5 complete</h2>
+  <div class="textbox">
+    <p>Both <code>readlink</code> (F4) and <code>realpath</code> (S5) execute on the libuv pool. Both are essentially one <code>stat()</code>-style walk &mdash; tens of microseconds. They complete in the same poll iteration. The event loop fires both callbacks; microtasks drain in between.</p>
+  </div>
+  <div class="two-col" style="margin-top: 20px;">
+    <div class="col">
+      <div class="card card-blue">
+        <div class="card-header">F chain &mdash; readlink resolves</div>
+        <pre><code class="language-javascript">// readlink rejected with ENOENT
+.catch(_ =&gt; null)              // becomes null
+.then(symlinkPointsTo =&gt; {
+  if (symlinkPointsTo) throw...;
+  return realOutputPath;       // CHECK PASSED &#10003;
+})
+.then(realOutputPath =&gt; {
+  return fsP.realpath(           // submits F5
+           path.dirname(dest)).then(/*check*/);
+})</code></pre>
+        <p style="font-size: 0.7em; color: var(--text-secondary); padding: 0 16px 16px;">
+          F now parks on <strong>F5 = realpath</strong>.
+        </p>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card card-purple">
+        <div class="card-header">S chain &mdash; realpath resolves</div>
+        <pre><code class="language-javascript">// containment check passes (dirname == output)
+.then(() =&gt; {
+  if (x.type === 'symlink') {
+    return fsP.symlink(            // submits S6
+             x.linkname, dest);
+  }
+  return fsP.writeFile(...);
+})</code></pre>
+        <p style="font-size: 0.7em; color: var(--text-secondary); padding: 0 16px 16px;">
+          S now parks on <strong>S6 = symlink syscall</strong>.
+        </p>
+      </div>
+    </div>
+  </div>
+  <div class="textbox" style="margin-top: 16px;">
+    <p><span class="inline-tag tag-red">State of the world</span> Pending in libuv: F5 (realpath) and S6 (symlink). <strong>S6 reaches the syscall stage one hop earlier than F can reach F6.</strong></p>
+  </div>
+</section>

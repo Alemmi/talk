@@ -1,0 +1,16 @@
+<section>
+  <h2 class="section-title">Symlink chain &mdash; counted in I/O hops</h2>
+  <div class="card card-purple full-width">
+    <div class="card-header">Entry: <code>{ type:'symlink', path:'aaaaa', linkname:'/tmp/pwned' }</code></div>
+    <pre><code class="language-text">S1   makeDir(output)              [I/O]    same as F1
+S2   realpath(output)             [I/O]    same as F2
+S3   safeMakeDir(dirname(dest))   [I/O*3]  same as F3
+S4   x.type === 'file' ? ...      [SYNC]   passthrough &mdash; no I/O, no readlink     &#9733;
+S5   realpath(dirname(dest))      [I/O]    same as F5
+S6   symlink(linkname, dest)      [I/O]    one syscall, fast (just creates a dirent)</code></pre>
+  </div>
+  <div class="textbox" style="margin-top: 20px;">
+    <p><span class="inline-tag tag-purple">Hop count to the dangerous syscall</span> Before the <code>symlink(2)</code>, the chain has been through <strong>S1 + S2 + S3 + S5 = ~4 awaitable I/O steps</strong>. <code>S4</code> is a pure JS branch &mdash; it costs a microtask, nothing more.</p>
+    <p><span class="inline-tag tag-red">Critical syscall</span> <code>symlink('/tmp/pwned', 'dist/aaaaa')</code> &mdash; succeeds even if target doesn&apos;t exist, no containment check.</p>
+  </div>
+</section>

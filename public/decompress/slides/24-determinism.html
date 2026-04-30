@@ -1,0 +1,24 @@
+<section>
+  <h2 class="section-title">Why this is deterministic</h2>
+  <div class="textbox">
+    <p>Let <strong>T_io</strong> be the wall-clock cost of a single async hop &mdash; submit, syscall, completion signal, callback fire, microtask drain. Empirically tens of microseconds for a cached <code>readlink</code>/<code>realpath</code>.</p>
+  </div>
+  <div class="bigbox-row" style="margin-top: 24px;">
+    <div class="bigbox bigbox-blue">
+      <span class="bigbox-title">F reaches F6</span>
+      <span class="bigbox-sub">5 &middot; T_io after start<br>(F1, F2, F3, F4, F5)</span>
+    </div>
+    <div class="bigbox bigbox-purple">
+      <span class="bigbox-title">S reaches S6</span>
+      <span class="bigbox-sub">4 &middot; T_io after start<br>(S1, S2, S3, S5)</span>
+    </div>
+    <div class="bigbox bigbox-red">
+      <span class="bigbox-title">Gap</span>
+      <span class="bigbox-sub">~1 &middot; T_io<br>orders of magnitude bigger than scheduler jitter</span>
+    </div>
+  </div>
+  <div class="textbox" style="margin-top: 24px;">
+    <p>For F to win the race, F&apos;s <code>open(2)</code> would have to complete <em>before</em> S&apos;s <code>symlink(2)</code>. But S&apos;s <code>symlink(2)</code> is <strong>submitted before</strong> F&apos;s <code>open(2)</code> is even <em>scheduled</em>. The submission gap alone covers the entire syscall.</p>
+    <p class="fragment"><span class="inline-tag tag-cyan">Conclusion</span> This isn&apos;t a probabilistic race &mdash; it&apos;s a <strong>structural inequality of async hops</strong>. The exploit fires every single time on every Linux/macOS host with a hot or cold filesystem.</p>
+  </div>
+</section>

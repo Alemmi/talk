@@ -1,0 +1,22 @@
+<section>
+  <h2 class="section-title">PoC &mdash; what happens on disk</h2>
+  <div class="card card-red full-width">
+    <div class="card-header">$ node trigger.js &amp;&amp; ls -la dist /tmp/pwned</div>
+    <pre><code class="language-bash">extracted 2
+
+dist/:
+total 8
+drwxr-xr-x  alemmi  alemmi   60  .
+drwxr-xr-x  alemmi  alemmi   60  ..
+lrwxrwxrwx  alemmi  alemmi   10  aaaaa -&gt; /tmp/pwned
+
+-rw-r--r--  alemmi  alemmi   16  /tmp/pwned
+
+$ cat /tmp/pwned
+ARBITRARY WRITE</code></pre>
+  </div>
+  <div class="textbox" style="margin-top: 24px;">
+    <p>The output directory looks innocent &mdash; just a symlink. The damage happened <strong>outside</strong> the output directory, at the symlink target.</p>
+    <p class="fragment"><span class="inline-tag tag-red">Wait</span> Is this really 100% reliable? It looks like a race &mdash; should win some, lose some. Let&apos;s see why it always wins.</p>
+  </div>
+</section>

@@ -1,0 +1,30 @@
+<section>
+  <h2 class="section-title">Impact &mdash; from arbitrary write to RCE</h2>
+  <div class="bigbox-row">
+    <div class="bigbox bigbox-red fragment" data-box="1">
+      <span class="bigbox-title">~/.ssh/authorized_keys</span>
+      <span class="bigbox-sub">Plant attacker key &rarr; remote shell on next login</span>
+    </div>
+    <div class="bigbox bigbox-red fragment" data-box="2">
+      <span class="bigbox-title">~/.bashrc, ~/.profile</span>
+      <span class="bigbox-sub">Append payload &rarr; runs on next interactive shell</span>
+    </div>
+    <div class="bigbox bigbox-red fragment" data-box="3">
+      <span class="bigbox-title">cron / systemd unit</span>
+      <span class="bigbox-sub">Drop a job in <code>/etc/cron.d/</code> if root, <code>~/.config/systemd/user/</code> otherwise</span>
+    </div>
+  </div>
+  <div class="bigbox-row" style="margin-top: 20px;">
+    <div class="bigbox bigbox-red fragment" data-box="4">
+      <span class="bigbox-title">.git/hooks/post-checkout</span>
+      <span class="bigbox-sub">Triggers on next <code>git pull</code> in any repo</span>
+    </div>
+    <div class="bigbox bigbox-red fragment" data-box="5">
+      <span class="bigbox-title">node_modules/.bin/...</span>
+      <span class="bigbox-sub">Overwrite a CLI binary that the next <code>npm script</code> invokes</span>
+    </div>
+  </div>
+  <div class="textbox" style="margin-top: 24px;">
+    <p><span class="inline-tag tag-red">Realistic targets</span> CI runners that extract user-supplied archives, electron auto-updaters, AI coding agents that download &amp; unpack tool bundles, package registries with archive-based publishing.</p>
+  </div>
+</section>
