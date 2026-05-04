@@ -1,0 +1,46 @@
+<section>
+  <h2 class="section-title">Closing the gap &mdash; disable, don't filter</h2>
+  <div class="two-col">
+    <div class="col">
+      <div class="card card-green">
+        <div class="card-header">Java &mdash; harden every factory</div>
+        <pre><code class="language-java">DocumentBuilderFactory f =
+    DocumentBuilderFactory.newInstance();
+f.setFeature(
+  "http://apache.org/xml/features/" +
+  "disallow-doctype-decl", true);
+f.setFeature(XMLConstants
+  .FEATURE_SECURE_PROCESSING, true);
+f.setXIncludeAware(false);
+f.setExpandEntityReferences(false);</code></pre>
+      </div>
+      <div class="card card-green" style="margin-top: 12px;">
+        <div class="card-header">Python &mdash; defusedxml or strict parser</div>
+        <pre><code class="language-python">from defusedxml import ElementTree as ET
+doc = ET.fromstring(req.body)
+
+# or with lxml:
+parser = etree.XMLParser(
+    resolve_entities=False,
+    no_network=True)</code></pre>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card card-green">
+        <div class="card-header">PHP &mdash; reject DOCTYPE</div>
+        <pre><code class="language-php">// Modern libxml: external entities OFF by default.
+// Make it explicit anyway:
+$prev = libxml_use_internal_errors(true);
+$doc = new DOMDocument();
+$doc-&gt;loadXML($xml,
+    LIBXML_NONET | LIBXML_DTDLOAD ^ LIBXML_DTDLOAD);
+// Or simply reject any input containing &lt;!DOCTYPE</code></pre>
+      </div>
+      <div class="textbox" style="margin-top: 12px;">
+        <p><span class="inline-tag tag-purple">Layer 1</span> Disable DTDs and external entities at the parser. Don't try to filter strings &mdash; entity syntax has too many tricks (UTF-7, parameter entities, error-based exfil).</p>
+        <p><span class="inline-tag tag-purple">Layer 2</span> Prefer JSON. If you must accept XML, accept it from one place and harden one parser.</p>
+        <p><span class="inline-tag tag-purple">Layer 3</span> Egress filtering. The parser pod doesn't need outbound HTTP.</p>
+      </div>
+    </div>
+  </div>
+</section>

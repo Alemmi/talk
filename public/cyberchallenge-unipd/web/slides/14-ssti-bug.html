@@ -1,0 +1,38 @@
+<section>
+  <h2 class="section-title">The bug, in one line</h2>
+  <div class="two-col">
+    <div class="col">
+      <div class="card card-red">
+        <div class="card-header">vulnerable &mdash; input INTO the template source</div>
+        <pre><code class="language-python">@app.route('/hello')
+def hello():
+    name = request.args.get('name', '')
+    template = f"&lt;h1&gt;Hi {name}&lt;/h1&gt;"
+    return render_template_string(template)
+
+# /hello?name=&#123;&#123;7*7&#125;&#125;
+# &rarr; renders &lt;h1&gt;Hi 49&lt;/h1&gt;</code></pre>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card card-green">
+        <div class="card-header">safe &mdash; input STAYS in the context</div>
+        <pre><code class="language-python">@app.route('/hello')
+def hello():
+    name = request.args.get('name', '')
+    return render_template_string(
+        "&lt;h1&gt;Hi &#123;&#123; name &#125;&#125;&lt;/h1&gt;",
+        name=name,
+    )
+
+# /hello?name=&#123;&#123;7*7&#125;&#125;
+# &rarr; renders &lt;h1&gt;Hi &#123;&#123;7*7&#125;&#125;&lt;/h1&gt;</code></pre>
+      </div>
+    </div>
+  </div>
+  <div class="textbox" style="margin-top: 18px;">
+    <p><span class="inline-tag tag-red">The rule</span> If user input is <em>concatenated into the template source</em>, you have SSTI. If it's bound as a context variable, you don't.</p>
+    <p><span class="inline-tag tag-purple">Spotting it</span> Look for <code>f"..."</code>, <code>"..." + name</code>, <code>format()</code>, <code>%s</code>, or any string assembly that ends up at <code>render_template_string</code>, <code>Twig::render</code>, <code>FreeMarker.process</code>, etc.</p>
+    <p><span class="inline-tag tag-cyan">Variant</span> Sometimes the template is loaded from a DB / CMS where users edit it &mdash; same bug, different facade.</p>
+  </div>
+</section>

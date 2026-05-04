@@ -1,0 +1,38 @@
+<section>
+  <h2 class="section-title">Detection &mdash; <code>7&times;7</code> still works in 2026</h2>
+  <div class="two-col">
+    <div class="col">
+      <div class="card card-blue">
+        <div class="card-header">probe each input field</div>
+        <pre><code class="language-text">&#123;&#123;7*7&#125;&#125;       &rarr; 49   Jinja2, Twig, Nunjucks
+${7*7}        &rarr; 49   Freemarker, JSP EL, Spring
+*&#123;7*7&#125;        &rarr; 49   Thymeleaf
+&#123;7*7&#125;          &rarr; 49   Smarty (older), Handlebars
+&lt;%= 7*7 %&gt;    &rarr; 49   ERB, EJS
+#&#123;7*7&#125;         &rarr; 49   Spring SpEL, Pug
+@(7*7)        &rarr; 49   Razor
+&#123;%print(7*7)%&#125; &rarr; 49   Jinja2 (alt syntax)</code></pre>
+      </div>
+    </div>
+    <div class="col">
+      <ul class="styled-list">
+        <li>
+          <span class="list-marker">&#9656;</span>
+          <div><strong>Why arithmetic</strong> &mdash; if <code>7*7</code> renders as <code>49</code>, the engine evaluated an expression. That's code execution at template scope</div>
+        </li>
+        <li>
+          <span class="list-marker">&#9656;</span>
+          <div><strong>Distinguish XSS from SSTI</strong>: <code>&lt;script&gt;</code> reflected = XSS. <code>49</code> rendered from <code>&#123;&#123;7*7&#125;&#125;</code> = SSTI. The first runs in your browser; the second runs on the server</div>
+        </li>
+        <li>
+          <span class="list-marker">&#9656;</span>
+          <div><strong>Fingerprint next.</strong> <code>&#123;&#123;7*'7'&#125;&#125;</code>: Jinja2 returns <code>'7777777'</code>, Twig returns <code>49</code>. <code>&#123;&#123;config&#125;&#125;</code> works in Jinja2 only. Different engine = different escape gadget</div>
+        </li>
+        <li>
+          <span class="list-marker">&#9656;</span>
+          <div><strong>Probe everywhere</strong> &mdash; URL params, form fields, headers (User-Agent, Referer), error messages, email body, filename, JSON values, cookies. Anywhere the server might render</div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>

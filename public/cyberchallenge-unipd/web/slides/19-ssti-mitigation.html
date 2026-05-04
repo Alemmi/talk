@@ -1,0 +1,39 @@
+<section>
+  <h2 class="section-title">Closing the gap &mdash; bind, don't concatenate</h2>
+  <div class="two-col">
+    <div class="col">
+      <div class="card card-green">
+        <div class="card-header">1. User input goes in the context, never in the source</div>
+        <pre><code class="language-python"># BAD
+template = f"Hello {name}"
+render_template_string(template)
+
+# GOOD
+render_template_string(
+    "Hello &#123;&#123; name &#125;&#125;", name=name)</code></pre>
+      </div>
+      <div class="card card-green" style="margin-top: 12px;">
+        <div class="card-header">2. Sandboxed renderer (best-effort)</div>
+        <pre><code class="language-python">from jinja2.sandbox import SandboxedEnvironment
+env = SandboxedEnvironment()
+env.from_string(tpl).render(**ctx)
+# Twig: new \Twig\Sandbox\SecurityPolicy(...)</code></pre>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card card-green">
+        <div class="card-header">3. Least-privilege rendering worker</div>
+        <ul class="card-list">
+          <li>No DB credentials in the rendering process</li>
+          <li>No outbound network from the renderer</li>
+          <li>Read-only filesystem; no shell available</li>
+          <li>Short-lived process, killed after each request</li>
+        </ul>
+      </div>
+      <div class="textbox" style="margin-top: 12px;">
+        <p><span class="inline-tag tag-purple">Why &ldquo;all three&rdquo;</span> Sandboxes have a long history of bypasses (Jinja sandbox CVEs, Twig sandbox CVEs, Velocity escapes). Rule (1) is the only real fix; (2) and (3) buy you time when (1) is hard to retrofit.</p>
+        <p><span class="inline-tag tag-cyan">Anti-pattern</span> &ldquo;Block <code>&#123;&#123;</code> in input.&rdquo; You'll miss the alternate syntaxes, the URL-encoded variants, the <code>|attr</code> bypass, and the engine that uses <code>${</code>.</p>
+      </div>
+    </div>
+  </div>
+</section>

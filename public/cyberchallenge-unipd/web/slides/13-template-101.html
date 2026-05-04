@@ -1,0 +1,46 @@
+<section>
+  <h2 class="section-title">Template engines 101</h2>
+  <div class="two-col">
+    <div class="col">
+      <div class="card card-blue">
+        <div class="card-header">a Jinja2 template &mdash; intended use</div>
+        <pre><code class="language-html">&lt;h1&gt;Hi {{ user.name }}&lt;/h1&gt;
+&lt;p&gt;You have {{ user.posts|length }} posts.&lt;/p&gt;
+{% for p in user.posts %}
+  &lt;li&gt;&lt;a href="/p/{{ p.id }}"&gt;{{ p.title }}&lt;/a&gt;&lt;/li&gt;
+{% endfor %}</code></pre>
+      </div>
+      <div class="card card-blue" style="margin-top: 12px;">
+        <div class="card-header">render call &mdash; the safe way</div>
+        <pre><code class="language-python">render_template_string(
+    template_source,    # constant or from a file
+    user=current_user,  # data goes in the context
+)</code></pre>
+      </div>
+    </div>
+    <div class="col">
+      <ul class="styled-list">
+        <li>
+          <span class="list-marker">&#9656;</span>
+          <div><strong>The contract:</strong> you pass a <em>template</em> + a <em>context</em>; you get back a string</div>
+        </li>
+        <li>
+          <span class="list-marker">&#9656;</span>
+          <div><strong>The engine resolves attribute access</strong> &mdash; <code>user.posts|length</code> walks objects, calls methods, runs filters</div>
+        </li>
+        <li>
+          <span class="list-marker">&#9656;</span>
+          <div><strong>Many engines run arbitrary code</strong> by design &mdash; Jinja <code>{% if %}</code>, ERB <code>&lt;% ... %&gt;</code>, JSP scriptlets</div>
+        </li>
+        <li>
+          <span class="list-marker">&#9656;</span>
+          <div><strong>The line</strong> between &ldquo;data access&rdquo; and &ldquo;arbitrary code&rdquo; is the engine's sandbox &mdash; and most don't sandbox by default</div>
+        </li>
+        <li>
+          <span class="list-marker">&#9656;</span>
+          <div><strong>The big ones:</strong> Jinja2, Twig, Freemarker, Velocity, Thymeleaf, ERB, Mustache, Smarty, Handlebars, Pug</div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>

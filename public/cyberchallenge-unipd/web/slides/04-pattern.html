@@ -1,0 +1,39 @@
+<section>
+  <h2 class="section-title">Untrusted input + powerful interpreter</h2>
+  <div class="two-col">
+    <div class="col">
+      <div class="flowchart">
+        <div class="flow-node flow-node-blue">
+          <span class="flow-label">User input</span>
+          <span class="flow-sub">a form field, an upload, a header</span>
+        </div>
+        <div class="flow-arrow">&#8595;</div>
+        <div class="flow-node flow-node-purple">
+          <span class="flow-label">Interpreter</span>
+          <span class="flow-sub">XML parser, template engine, expression language</span>
+        </div>
+        <div class="flow-arrow">&#8595;</div>
+        <div class="flow-node flow-node-red">
+          <span class="flow-label">Primitive</span>
+          <span class="flow-sub">file read, SSRF, RCE, info leak</span>
+        </div>
+      </div>
+    </div>
+    <div class="col">
+      <ul class="styled-list">
+        <li>
+          <span class="list-marker">&#9656;</span>
+          <div><strong>XXE</strong> &mdash; the XML parser will fetch URLs and read files <em>by design</em>; you only need it to parse attacker XML</div>
+        </li>
+        <li>
+          <span class="list-marker">&#9656;</span>
+          <div><strong>SSTI</strong> &mdash; the template engine will resolve attribute access and call methods <em>by design</em>; you only need user input inside the template <em>source</em></div>
+        </li>
+        <li>
+          <span class="list-marker">&#9656;</span>
+          <div><strong>The CVE is rarely in the parser/engine.</strong> It's in the developer handing it user input as if it were inert text</div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>

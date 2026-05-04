@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trust the Parser? — XXE &amp; SSTI</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/white.css" id="theme">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+      <section data-external-replace="slides/01-cover.html"></section>
+      <section data-external-replace="slides/02-agenda.html"></section>
+      <section data-external-replace="slides/03-section-pattern.html"></section>
+      <section data-external-replace="slides/04-pattern.html"></section>
+      <section data-external-replace="slides/05-section-xxe.html"></section>
+      <section data-external-replace="slides/06-xml-101.html"></section>
+      <section data-external-replace="slides/07-xxe-vuln-code.html"></section>
+      <section data-external-replace="slides/08-xxe-poc.html"></section>
+      <section data-external-replace="slides/09-xxe-blind.html"></section>
+      <section data-external-replace="slides/10-xxe-beyond.html"></section>
+      <section data-external-replace="slides/11-xxe-mitigation.html"></section>
+      <section data-external-replace="slides/12-section-ssti.html"></section>
+      <section data-external-replace="slides/13-template-101.html"></section>
+      <section data-external-replace="slides/14-ssti-bug.html"></section>
+      <section data-external-replace="slides/15-ssti-detect.html"></section>
+      <section data-external-replace="slides/16-ssti-jinja.html"></section>
+      <section data-external-replace="slides/17-ssti-other.html"></section>
+      <section data-external-replace="slides/18-ssti-real-world.html"></section>
+      <section data-external-replace="slides/19-ssti-mitigation.html"></section>
+      <section data-external-replace="slides/20-section-takeaways.html"></section>
+      <section data-external-replace="slides/21-takeaways.html"></section>
+      <section data-external-replace="slides/22-closing.html"></section>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/highlight/highlight.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/notes/notes.js"></script>
+  <script>
+    Reveal.initialize({
+      hash: true,
+      slideNumber: 'c/t',
+      width: 1280,
+      height: 720,
+      margin: 0.04,
+      transition: 'slide',
+      transitionSpeed: 'default',
+      backgroundTransition: 'fade',
+      plugins: [RevealHighlight, RevealNotes],
+      dependencies: [
+        {
+          src: 'lib/external.js',
+          condition: function() {
+            return !!document.querySelector('[data-external],[data-external-replace]');
+          }
+        }
+      ]
+    });
+  </script>
+</body>
+</html>

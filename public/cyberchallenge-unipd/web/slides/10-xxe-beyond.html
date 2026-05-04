@@ -1,0 +1,24 @@
+<section>
+  <h2 class="section-title">Beyond file read &mdash; the same primitive, re-used</h2>
+  <div class="bigbox-row">
+    <div class="bigbox bigbox-red">
+      <span class="bigbox-title">SSRF</span>
+      <code style="font-size: 0.55em; font-family: var(--font-mono); color: var(--text-secondary);">SYSTEM "http://169.254.169.254/<br>latest/meta-data/"</code>
+      <span class="bigbox-sub">Pivot from the parser into the internal network. Cloud metadata, internal admin panels, redis on localhost.</span>
+    </div>
+    <div class="bigbox bigbox-purple">
+      <span class="bigbox-title">XInclude</span>
+      <code style="font-size: 0.55em; font-family: var(--font-mono); color: var(--text-secondary);">&lt;x xmlns:xi=<br>"http://www.w3.org/2001/XInclude"<br>&gt;&lt;xi:include href="..."/&gt;&lt;/x&gt;</code>
+      <span class="bigbox-sub">When DOCTYPE is filtered. Same effect, no DTD needed &mdash; just an inline XInclude element.</span>
+    </div>
+    <div class="bigbox bigbox-cyan">
+      <span class="bigbox-title">DoS</span>
+      <code style="font-size: 0.55em; font-family: var(--font-mono); color: var(--text-secondary);">&amp;lol9; &rarr; 10&#94;9 expansions</code>
+      <span class="bigbox-sub">Billion laughs: nested entities expand exponentially. Mostly historical &mdash; modern parsers cap expansion depth.</span>
+    </div>
+  </div>
+  <div class="textbox" style="margin-top: 18px;">
+    <p><span class="inline-tag tag-purple">Mental model</span> Once you control the XML, the parser is your <em>HTTP/file client</em>. File read is the easy demo. SSRF is where the real impact lives &mdash; especially in cloud (IMDS) and microservice environments.</p>
+    <p><span class="inline-tag tag-cyan">In CTFs</span> Always try <code>file://</code> first, then <code>http://localhost</code>, then known cloud-metadata endpoints. The flag is rarely <code>/etc/passwd</code>; it's behind an internal service.</p>
+  </div>
+</section>

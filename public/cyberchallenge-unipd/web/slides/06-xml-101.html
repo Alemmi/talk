@@ -1,0 +1,47 @@
+<section>
+  <h2 class="section-title">XML 101 &mdash; the feature that bites</h2>
+  <div class="two-col">
+    <div class="col">
+      <div class="card card-blue">
+        <div class="card-header">internal entity &mdash; harmless</div>
+        <pre><code class="language-xml">&lt;?xml version="1.0"?&gt;
+&lt;!DOCTYPE foo [
+  &lt;!ENTITY greet "ciao"&gt;
+]&gt;
+&lt;msg&gt;&amp;greet;&lt;/msg&gt;
+
+&lt;!-- parses to: &lt;msg&gt;ciao&lt;/msg&gt; --&gt;</code></pre>
+      </div>
+      <div class="card card-red" style="margin-top: 12px;">
+        <div class="card-header">external entity &mdash; the parser fetches</div>
+        <pre><code class="language-xml">&lt;?xml version="1.0"?&gt;
+&lt;!DOCTYPE foo [
+  &lt;!ENTITY xxe SYSTEM "file:///etc/passwd"&gt;
+]&gt;
+&lt;msg&gt;&amp;xxe;&lt;/msg&gt;
+
+&lt;!-- parses to: &lt;msg&gt;root:x:0:0:...&lt;/msg&gt; --&gt;</code></pre>
+      </div>
+    </div>
+    <div class="col">
+      <ul class="styled-list">
+        <li>
+          <span class="list-marker">&#9656;</span>
+          <div><strong>DTD</strong> &mdash; <em>Document Type Definition</em>, declares what's allowed in the document. Can be inline (<code>&lt;!DOCTYPE foo [...]&gt;</code>) or external</div>
+        </li>
+        <li>
+          <span class="list-marker">&#9656;</span>
+          <div><strong>Entity</strong> &mdash; named macro: <code>&amp;greet;</code> expands to its definition</div>
+        </li>
+        <li>
+          <span class="list-marker">&#9656;</span>
+          <div><strong>SYSTEM identifier</strong> &mdash; tells the parser to <em>resolve</em> the entity by fetching a URI: <code>file://</code>, <code>http://</code>, <code>ftp://</code>, sometimes <code>jar:</code>, <code>netdoc:</code>, <code>php://</code></div>
+        </li>
+        <li>
+          <span class="list-marker">&#9656;</span>
+          <div><strong>This is a feature</strong>. The bug is feeding it untrusted XML</div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>

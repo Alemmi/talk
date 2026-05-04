@@ -1,0 +1,31 @@
+<section>
+  <h2 class="section-title">Takeaways</h2>
+  <div class="content-box">
+    <ul class="styled-list">
+      <li class="fragment">
+        <span class="list-marker">&#9656;</span>
+        <div><strong>Untrusted input + powerful interpreter = primitive.</strong> The interpreter doesn't need a CVE &mdash; it's doing exactly what it was designed to do</div>
+      </li>
+      <li class="fragment">
+        <span class="list-marker">&#9656;</span>
+        <div><strong>XXE: every XML parser is a network and file client.</strong> If you can't disable DTDs, treat any XML endpoint like a Trojan horse &mdash; and probe for SSRF, not just file read</div>
+      </li>
+      <li class="fragment">
+        <span class="list-marker">&#9656;</span>
+        <div><strong>SSTI: keep user input in the context, never in the template source.</strong> Concatenation is the bug, parameter binding is the fix</div>
+      </li>
+      <li class="fragment">
+        <span class="list-marker">&#9656;</span>
+        <div><strong><code>7&times;7</code> is your first probe.</strong> Then fingerprint the engine, then pick the gadget &mdash; same idea, different syntax</div>
+      </li>
+      <li class="fragment">
+        <span class="list-marker">&#9656;</span>
+        <div><strong>Filtering is a losing game.</strong> Disable the dangerous feature at the parser/engine; don't try to outsmart entity syntax or template DSLs with regex</div>
+      </li>
+      <li class="fragment">
+        <span class="list-marker">&#9656;</span>
+        <div><strong>In CTFs &mdash; check every input.</strong> URL params, headers, JSON, filenames, error messages, server-generated emails. The flag is wherever the dev forgot the parser was loaded</div>
+      </li>
+    </ul>
+  </div>
+</section>
