@@ -1,0 +1,23 @@
+<section>
+  <h2 class="section-title">Impact &mdash; a model file <em>is</em> an executable</h2>
+  <div class="textbox" style="border-color: rgba(239,68,68,0.45); background: rgba(239,68,68,0.05);">
+    <p><span class="inline-tag tag-red">Punchline</span> No phishing, no second bug, no escape. Hand someone a <code>.gguf</code> &mdash; or point an exposed LM Studio server at one &mdash; and parsing it runs <strong>arbitrary commands</strong> under the LM Studio user.</p>
+  </div>
+  <div class="stats-row" style="margin-top: 18px;">
+    <div class="stat-card">
+      <div class="stat-value gradient-text">0</div>
+      <div class="stat-label">prior code execution<br>or user interaction required</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value gradient-text">~7%</div>
+      <div class="stat-label">success per load &mdash;<br>and reloading is free</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value gradient-text">3</div>
+      <div class="stat-label">reachable entry points<br>GUI / HTTP / WS RPC</div>
+    </div>
+  </div>
+  <div class="textbox" style="margin-top: 18px;">
+    <p><span class="inline-tag tag-purple">Why it&apos;s reliable</span> The engine ships <strong>non-PIE</strong> &mdash; gadget addresses are absolute, so no info-leak is needed. The <code>1/14</code> spray odds are beaten simply by re-loading the model, which never restarts LM Studio.</p>
+  </div>
+</section>

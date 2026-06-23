@@ -1,0 +1,24 @@
+<section>
+  <h2 class="section-title">Plant the payload, then force a throw</h2>
+  <div class="card card-red full-width">
+    <div class="card-header">src/llama-vocab.cpp &mdash; impl::load (excerpt)</div>
+    <pre><code class="language-cpp">} else if (tokenizer_model == "t5") {                       // tokenizer.ggml.model = "t5"
+  type = LLAMA_VOCAB_TYPE_UGM;
+  // ...
+  const int kidx = gguf_find_key(ctx, kv(LLM_KV_TOKENIZER_PRECOMPILED_CHARSMAP).c_str());
+  if (kidx != -1) {
+    // ... reads it as a UINT8/INT8 array ...
+    const size_t n  = gguf_get_arr_n(ctx, kidx);
+    const char * pc = (const char *) gguf_get_arr_data(ctx, kidx);
+    precompiled_charsmap.assign(pc, pc + n);                // ◄ ROP blob materialised on the heap
+  }
+  // ...
+  const int token_idx = gguf_find_key(ctx, kv(LLM_KV_TOKENIZER_LIST).c_str());
+  if (token_idx == -1) {
+    throw std::runtime_error("cannot find tokenizer vocab in model file\n");  // ◄ forced abort, AFTER the plant
+  }</code></pre>
+  </div>
+  <div class="textbox" style="margin-top: 18px;">
+    <p>Pick the <code>t5</code> tokenizer so the loader copies our <code>precompiled_charsmap</code> blob into the heap. Then <strong>omit <code>tokenizer.ggml.tokens</code></strong> &mdash; the loader throws right after the blob is planted. C++ stack unwinding now runs <code>~llama_model</code>, on an object whose fields we already corrupted.</p>
+  </div>
+</section>

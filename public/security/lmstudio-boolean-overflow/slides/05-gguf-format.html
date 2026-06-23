@@ -1,0 +1,28 @@
+<section>
+  <h2 class="section-title">GGUF &mdash; a bag of key/value metadata</h2>
+  <div class="two-col">
+    <div class="col">
+      <div class="card card-blue">
+        <div class="card-header">the parts that matter to us</div>
+        <pre><code class="language-text">┌─ header ─────────────────────┐
+│ magic "GGUF", version, counts │
+├─ KV metadata ────────────────┤
+│ general.architecture = "..."  │  ◄ picks the code path
+│ <arch>.block_count    = u32   │  ◄ becomes n_layer
+│ <arch>.attention.*    = ...   │
+│ tokenizer.ggml.model  = "..." │
+│ tokenizer.ggml.tokens = [...] │
+│ ...arbitrary KV strings...    │
+├─ tensor info + tensor data ──┤
+└──────────────────────────────┘</code></pre>
+      </div>
+    </div>
+    <div class="col">
+      <div class="textbox">
+        <p>Every value above is read <strong>verbatim from the file</strong> at load time, before any inference runs.</p>
+        <p><span class="inline-tag tag-purple">Typed arrays</span> KV values can be typed arrays &mdash; <code>UINT8</code>, <code>INT32</code>, strings&hellip; We will lean on <code>UINT8</code> arrays later to smuggle bytes with embedded <code>NUL</code>s.</p>
+        <p><span class="inline-tag tag-red">Trust model</span> The loader treats counts and lengths as <em>facts</em>, not as untrusted input. That assumption is the whole bug.</p>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LM Studio — Boolean Overflow to RCE via GGUF</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/white.css" id="theme">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+      <section data-external-replace="slides/01-cover.html"></section>
+      <section data-external-replace="slides/02-agenda.html"></section>
+      <section data-external-replace="slides/03-section-target.html"></section>
+      <section data-external-replace="slides/04-lmstudio-overview.html"></section>
+      <section data-external-replace="slides/05-gguf-format.html"></section>
+      <section data-external-replace="slides/06-attack-surface.html"></section>
+      <section data-external-replace="slides/07-section-bug.html"></section>
+      <section data-external-replace="slides/08-root-cause.html"></section>
+      <section data-external-replace="slides/09-nlayer-unbounded.html"></section>
+      <section data-external-replace="slides/10-gemma3-branch.html"></section>
+      <section data-external-replace="slides/11-overflow-math.html"></section>
+      <section data-external-replace="slides/12-section-pointer.html"></section>
+      <section data-external-replace="slides/13-memory-layout.html"></section>
+      <section data-external-replace="slides/14-pimpl-overwrite.html"></section>
+      <section data-external-replace="slides/15-section-weaponize.html"></section>
+      <section data-external-replace="slides/16-exception-path.html"></section>
+      <section data-external-replace="slides/17-destructor-chain.html"></section>
+      <section data-external-replace="slides/18-hijack-sink.html"></section>
+      <section data-external-replace="slides/19-section-spray.html"></section>
+      <section data-external-replace="slides/20-heap-spray.html"></section>
+      <section data-external-replace="slides/21-section-rop.html"></section>
+      <section data-external-replace="slides/22-rop-blob-layout.html"></section>
+      <section data-external-replace="slides/23-rop-chain.html"></section>
+      <section data-external-replace="slides/24-full-chain.html"></section>
+      <section data-external-replace="slides/25-section-impact.html"></section>
+      <section data-external-replace="slides/26-impact.html"></section>
+      <section data-external-replace="slides/27-remediation.html"></section>
+      <section data-external-replace="slides/28-takeaways.html"></section>
+      <section data-external-replace="slides/29-closing.html"></section>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/highlight/highlight.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/notes/notes.js"></script>
+  <script>
+    Reveal.initialize({
+      hash: true,
+      slideNumber: 'c/t',
+      width: 1280,
+      height: 720,
+      margin: 0.04,
+      transition: 'slide',
+      transitionSpeed: 'default',
+      backgroundTransition: 'fade',
+      plugins: [RevealHighlight, RevealNotes],
+      dependencies: [
+        {
+          src: 'lib/external.js',
+          condition: function() {
+            return !!document.querySelector('[data-external],[data-external-replace]');
+          }
+        }
+      ]
+    });
+  </script>
+</body>
+</html>

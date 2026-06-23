@@ -1,0 +1,38 @@
+<section>
+  <h2 class="section-title">Heap spray &mdash; true by saturation</h2>
+  <div class="two-col">
+    <div class="col">
+      <div class="card card-blue">
+        <div class="card-header">the only address we must predict</div>
+        <ul class="card-list">
+          <li>Engine is <strong>non-PIE</strong> &rarr; every gadget address is fixed</li>
+          <li>The one unknown: where <code>vocab.pimpl = 0x100000001</code> actually points</li>
+          <li>Don&apos;t predict it &mdash; <strong>make it true</strong> by covering the range</li>
+        </ul>
+      </div>
+      <div class="card card-blue" style="margin-top: 12px;">
+        <div class="card-header">spray parameters</div>
+        <ul class="card-list">
+          <li>Target address &mdash; <code>0x100000001</code></li>
+          <li>~4&nbsp;GB sprayed &mdash; ~64,000 GGUF string KVs of 65,504 bytes</li>
+          <li>Periodic <strong>14-slot</strong> pattern (14 &times; 8 bytes), rotated per string</li>
+          <li>Single-shot success <code>1/14 &asymp; 7%</code> &mdash; reload is free, fully repeatable</li>
+        </ul>
+      </div>
+    </div>
+    <div class="col">
+      <div class="textbox">
+        <p>The 14 slots encode, at fixed offsets from <code>0x100000001</code>:</p>
+      </div>
+      <ul class="styled-list">
+        <li><span class="list-marker">&#9656;</span><div>the two pointers the destructor consumes &mdash; <strong><code>NULL</code></strong>, then a <strong>stack-pivot</strong> address</div></li>
+        <li><span class="list-marker">&#9656;</span><div>the four-entry <code>argv</code> array for <code>execvp</code></div></li>
+        <li><span class="list-marker">&#9656;</span><div>the literal <code>/bin/sh\0</code></div></li>
+        <li><span class="list-marker">&#9656;</span><div>filler cells so any <code>std::string</code>-shaped reads pass minimal sanity</div></li>
+      </ul>
+      <div class="textbox" style="margin-top: 12px;">
+        <p><span class="inline-tag tag-purple">Why <code>UINT8</code> arrays</span> Gadget addresses contain <code>NUL</code> bytes; a string KV would truncate. <code>UINT8</code> arrays preserve every byte.</p>
+      </div>
+    </div>
+  </div>
+</section>

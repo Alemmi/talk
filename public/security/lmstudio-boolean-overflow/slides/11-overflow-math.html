@@ -1,0 +1,25 @@
+<section>
+  <h2 class="section-title">The primitive &mdash; a controlled boolean spray</h2>
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-value gradient-text">3852</div>
+      <div class="stat-label"><code>gemma3.block_count</code><br>drives <code>n_layer</code></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value gradient-text">512</div>
+      <div class="stat-label"><code>swa_layers</code> capacity<br>(2048 bytes)</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value gradient-text">3340</div>
+      <div class="stat-label">32-bit writes<br><em>past</em> the array</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value gradient-text">0 / 1</div>
+      <div class="stat-label">each written value,<br>chosen via <code>swa_period</code></div>
+    </div>
+  </div>
+  <div class="textbox" style="margin-top: 22px;">
+    <p><span class="inline-tag tag-red">CWE-787</span> <code>set_swa_pattern</code> writes <code>4 &times; 3852 = 15408</code> bytes into a 2048-byte array &mdash; <strong>13360 bytes of heap-relative out-of-bounds write</strong>, immediately after <code>swa_layers</code>.</p>
+    <p><span class="inline-tag tag-purple">Byte-stride control</span> Each written word is <code>0</code> or <code>1</code> depending on <code>il % swa_period</code>. By choosing <code>swa_period</code> we choose <em>which</em> offsets get a <code>1</code> &mdash; that is enough to forge a pointer out of repeated <code>1</code>s.</p>
+  </div>
+</section>

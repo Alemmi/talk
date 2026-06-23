@@ -1,0 +1,39 @@
+<section>
+  <h2 class="section-title">LM Studio vs <code>llama.cpp</code> &mdash; the architecture</h2>
+  <div class="two-col">
+    <div class="col">
+      <div class="flowchart">
+        <div class="flow-node flow-node-purple">
+          <span class="flow-label">LM Studio</span>
+          <span class="flow-sub">desktop app + headless / API server</span>
+        </div>
+        <div class="flow-arrow">&darr;</div>
+        <div class="flow-node flow-node-blue">
+          <span class="flow-label">Node-based runtime</span>
+          <span class="flow-sub">loads the <code>llm-engine</code> package</span>
+        </div>
+        <div class="flow-arrow">&darr;</div>
+        <div class="flow-node flow-node-red">
+          <span class="flow-label"><code>llama.cpp</code> engine</span>
+          <span class="flow-sub">C++ inference backend &mdash; <em>parses the model</em></span>
+        </div>
+        <div class="flow-arrow">&darr;</div>
+        <div class="flow-node flow-node-cyan">
+          <span class="flow-label">GGUF model file</span>
+          <span class="flow-sub">attacker-supplied bytes</span>
+        </div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="textbox">
+        <p><span class="inline-tag tag-purple">LM Studio</span> The product: a desktop app to download and run local LLMs, with a GUI and an OpenAI-compatible server. It is the wrapper users interact with.</p>
+      </div>
+      <div class="textbox" style="margin-top: 14px;">
+        <p><span class="inline-tag tag-red">llama.cpp</span> The open-source C++ engine that actually loads and runs the model. LM Studio bundles it inside <code>llm-engine</code>. <strong>The bug lives here</strong> &mdash; so it affects far more than LM Studio.</p>
+      </div>
+      <div class="textbox" style="margin-top: 14px;">
+        <p><span class="inline-tag tag-cyan">Platform</span> Linux x86_64, the <strong>non-PIE</strong> engine binary bundled at the time of the entry.</p>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,48 @@
+<section>
+  <h2 class="section-title">The whole chain, one load</h2>
+  <div class="flowchart-h">
+    <div class="flow-node flow-node-purple">
+      <span class="flow-label">1 &middot; OOB write</span>
+      <span class="flow-sub"><code>set_swa_pattern</code>, <code>n_layer=3852</code></span>
+    </div>
+    <div class="flow-arrow"></div>
+    <div class="flow-node flow-node-purple">
+      <span class="flow-label">2 &middot; forge pointer</span>
+      <span class="flow-sub"><code>vocab.pimpl = 0x100000001</code></span>
+    </div>
+    <div class="flow-arrow"></div>
+    <div class="flow-node flow-node-blue">
+      <span class="flow-label">3 &middot; spray</span>
+      <span class="flow-sub">~4 GB, 14-slot pattern</span>
+    </div>
+    <div class="flow-arrow"></div>
+    <div class="flow-node flow-node-blue">
+      <span class="flow-label">4 &middot; plant blob</span>
+      <span class="flow-sub"><code>precompiled_charsmap</code></span>
+    </div>
+  </div>
+  <div class="flowchart-h" style="margin-top: 14px;">
+    <div class="flow-node flow-node-red">
+      <span class="flow-label">5 &middot; force throw</span>
+      <span class="flow-sub">omit <code>tokenizer.ggml.tokens</code></span>
+    </div>
+    <div class="flow-arrow"></div>
+    <div class="flow-node flow-node-red">
+      <span class="flow-label">6 &middot; ~llama_model</span>
+      <span class="flow-sub">walks corrupted <code>loras</code></span>
+    </div>
+    <div class="flow-arrow"></div>
+    <div class="flow-node flow-node-red">
+      <span class="flow-label">7 &middot; pivot</span>
+      <span class="flow-sub"><code>ggml_backend_buffer_free</code></span>
+    </div>
+    <div class="flow-arrow"></div>
+    <div class="flow-node flow-node-green">
+      <span class="flow-label">8 &middot; ROP</span>
+      <span class="flow-sub"><code>execvp("/bin/sh")</code></span>
+    </div>
+  </div>
+  <div class="textbox" style="margin-top: 20px;">
+    <p><span class="inline-tag tag-red">Single parse</span> Corruption, controlled abort, destructor hijack and ROP all happen during <strong>one GGUF load</strong> &mdash; no second vulnerability, no sandbox escape.</p>
+  </div>
+</section>

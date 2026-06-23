@@ -1,0 +1,40 @@
+<section>
+  <h2 class="section-title">Root cause &mdash; <code>set_swa_pattern</code></h2>
+  <div class="two-col">
+    <div class="col">
+      <div class="card card-red">
+        <div class="card-header">src/llama-hparams.cpp</div>
+        <pre><code class="language-cpp">void llama_hparams::set_swa_pattern(
+        uint32_t n_pattern, bool dense_first) {
+  if (dense_first) {
+    for (uint32_t il = 0; il &lt; n_layer; ++il) {     // bound = attacker n_layer
+      swa_layers[il] =
+        n_pattern == 0 || (il % n_pattern != 0);   // OOB write
+    }
+  } else {
+    for (uint32_t il = 0; il &lt; n_layer; ++il) {     // same primitive (gemma3)
+      swa_layers[il] =
+        n_pattern == 0 ||
+        (il % n_pattern &lt; (n_pattern - 1));
+    }
+  }
+}</code></pre>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card card-red">
+        <div class="card-header">src/llama-hparams.h</div>
+        <pre><code class="language-cpp">#define LLAMA_MAX_LAYERS 512
+// ...
+// swa_layers[il] == 1 → layer il is SWA
+// swa_layers[il] == 0 → layer il is dense
+std::array&lt;uint32_t,
+           LLAMA_MAX_LAYERS&gt; swa_layers;
+// capacity = 512 * 4 = 2048 bytes</code></pre>
+      </div>
+      <div class="textbox" style="margin-top: 14px;">
+        <p>The loop writes <code>swa_layers[il]</code> for <code>il &isin; [0, n_layer)</code>. The array holds <strong>512</strong> entries; <code>n_layer</code> comes from the file. Any <code>n_layer &gt; 512</code> writes past the end &mdash; up to <code>2&sup3;&sup2;&minus;1</code> iterations, ~16&nbsp;GB if we wanted.</p>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,37 @@
+<section>
+  <h2 class="section-title">Reaching the loop &mdash; the <code>gemma3</code> branch</h2>
+  <div class="two-col">
+    <div class="col">
+      <div class="card card-blue">
+        <div class="card-header">src/llama-model.cpp &mdash; LLM_ARCH_GEMMA3</div>
+        <pre><code class="language-cpp">case LLM_ARCH_GEMMA3: {
+  const bool found_swa = ml.get_key(
+    LLM_KV_ATTENTION_SLIDING_WINDOW,
+    hparams.n_swa, false);
+
+  if (found_swa &amp;&amp; hparams.n_swa &gt; 0) {     // set sliding_window
+    hparams.swa_type = LLAMA_SWA_TYPE_STANDARD;
+    uint32_t swa_period = 6;
+    ml.get_key_or_arr(
+      LLM_KV_ATTENTION_SLIDING_WINDOW_PATTERN,
+      swa_period, false);
+    hparams.set_swa_pattern(swa_period);     // ◄ reaches the vulnerable loop
+  } else {
+    hparams.swa_type = LLAMA_SWA_TYPE_NONE;
+  }
+} break;</code></pre>
+      </div>
+    </div>
+    <div class="col">
+      <div class="textbox">
+        <p><span class="inline-tag tag-purple">Why gemma3</span> It is enabled on the <strong>default load path</strong> &mdash; accepted by LM Studio&apos;s loader with no extra opt-in.</p>
+      </div>
+      <div class="textbox" style="margin-top: 14px;">
+        <p>Set <code>gemma3.attention.sliding_window</code> &gt; 0 and the branch calls <code>set_swa_pattern</code>. <code>swa_period</code> is <em>also</em> attacker-controlled &mdash; it decides the <code>0/1</code> pattern that gets written.</p>
+      </div>
+      <div class="textbox" style="margin-top: 14px;">
+        <p><span class="inline-tag tag-cyan">Not just gemma3</span> Any branch that calls <code>set_swa_pattern</code> works: <code>gemma2</code>, <code>gemma3n</code>, <code>phi3</code>-family&hellip;</p>
+      </div>
+    </div>
+  </div>
+</section>

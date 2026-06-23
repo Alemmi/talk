@@ -1,0 +1,41 @@
+<section>
+  <h2 class="section-title">What lives right after <code>swa_layers</code></h2>
+  <div class="two-col">
+    <div class="col">
+      <div class="card card-blue">
+        <div class="card-header">src/llama-model.h</div>
+        <pre><code class="language-cpp">struct llama_model {
+  llm_type type;
+  llm_arch arch;
+  std::string name;
+
+  llama_hparams hparams = {};   // contains swa_layers — the OOB source
+  llama_vocab   vocab;          // first victim — right after hparams
+  // ...
+  std::unordered_set&lt;
+    llama_adapter_lora *&gt; loras; // further in — walked by ~llama_model
+  // ...
+  ~llama_model();
+};</code></pre>
+      </div>
+      <div class="card card-blue" style="margin-top: 12px;">
+        <div class="card-header">src/llama-vocab.h</div>
+        <pre><code class="language-cpp">struct llama_vocab {
+  // ...
+private:
+  struct impl;
+  std::unique_ptr&lt;impl&gt; pimpl;  // the ONLY state — 8 bytes
+};</code></pre>
+      </div>
+    </div>
+    <div class="col">
+      <div class="textbox">
+        <p><span class="inline-tag tag-red">Adjacency is destiny</span> <code>vocab</code> sits immediately after <code>hparams</code>, and <code>llama_vocab</code> is a thin wrapper around a <strong>single 8-byte pointer</strong>.</p>
+        <p>So the byte offset from <code>swa_layers</code> to <code>vocab.pimpl</code> is a <strong>compile-time constant</strong> &mdash; same in every build, no info-leak required.</p>
+      </div>
+      <div class="textbox" style="margin-top: 14px;">
+        <p>Keep going and the OOB writes reach <code>loras</code> &mdash; the set the destructor iterates. We will corrupt <em>both</em> with one loop.</p>
+      </div>
+    </div>
+  </div>
+</section>

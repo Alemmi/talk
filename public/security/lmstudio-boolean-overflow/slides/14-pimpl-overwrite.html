@@ -1,0 +1,17 @@
+<section>
+  <h2 class="section-title">Two ones make a pointer</h2>
+  <div class="card card-red full-width">
+    <div class="card-header">the write that matters &mdash; swa_period chosen so two consecutive 1s land on vocab.pimpl</div>
+    <pre><code class="language-text">swa_layers[ 0 .. 511 ]   legitimate array                       (2048 bytes)
+            ...
+swa_layers[ k   ] = 1  ─┐
+swa_layers[ k+1 ] = 1  ─┴─►  vocab.pimpl = 0x00000001`00000001    ◄ two u32 "1"s, side by side
+            ...
+            (writes continue into) ...  loras  (the unordered_set buckets)</code></pre>
+  </div>
+  <div class="textbox" style="margin-top: 20px;">
+    <p>Two adjacent 32-bit <code>1</code>s, viewed as one 64-bit value, are <code>0x0000000100000001</code>. With <code>n_layer = 3852</code> and <code>swa_period = 6</code> the offsets line up cleanly &mdash; no further tuning.</p>
+    <p><span class="inline-tag tag-red">CWE-822</span> <code>vocab.pimpl</code> &mdash; a <code>std::unique_ptr</code> &mdash; now holds an <strong>attacker-chosen address</strong>. Every later access through it is an untrusted-pointer dereference.</p>
+    <p><span class="inline-tag tag-purple">Why <code>0x100000001</code></span> It is not random &mdash; it sits inside the predictable Linux x86_64 large-allocation range, the exact region we are about to <em>saturate</em> with a heap spray.</p>
+  </div>
+</section>

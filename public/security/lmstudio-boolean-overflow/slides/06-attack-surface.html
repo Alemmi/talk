@@ -1,0 +1,31 @@
+<section>
+  <h2 class="section-title">Reaching the loader &mdash; three doors, one sink</h2>
+  <div class="flowchart-h">
+    <div class="flow-node flow-node-purple">
+      <span class="flow-label">GUI drag-and-drop</span>
+      <span class="flow-sub">user opens a <code>.gguf</code></span>
+    </div>
+    <div class="flow-arrow"></div>
+    <div class="flow-node flow-node-purple">
+      <span class="flow-label">OpenAI-compatible HTTP server</span>
+      <span class="flow-sub">model loading enabled</span>
+    </div>
+    <div class="flow-arrow"></div>
+    <div class="flow-node flow-node-purple">
+      <span class="flow-label">Daemon WebSocket RPC</span>
+      <span class="flow-sub">path used by the PoC client</span>
+    </div>
+  </div>
+
+  <div class="flowchart" style="margin-top: 20px;">
+    <div class="flow-arrow">&darr;</div>
+    <div class="flow-node flow-node-red">
+      <span class="flow-label"><code>llama_model::load_hparams(...)</code></span>
+      <span class="flow-sub">all three paths converge here, with attacker-controlled metadata</span>
+    </div>
+  </div>
+
+  <div class="textbox" style="margin-top: 18px;">
+    <p><span class="inline-tag tag-red">Zero prerequisites</span> No prior code execution, no user interaction beyond &ldquo;load this model&rdquo;. The attack is <strong>purely content-based</strong> &mdash; everything happens at GGUF parse time.</p>
+  </div>
+</section>

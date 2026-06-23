@@ -1,0 +1,33 @@
+<section>
+  <h2 class="section-title">The fix &mdash; two minimally invasive changes</h2>
+  <div class="two-col">
+    <div class="col">
+      <div class="card card-green">
+        <div class="card-header">1. Hard-fail at the read site (mirror n_expert)</div>
+        <pre><code class="language-cpp">ml.get_key(LLM_KV_BLOCK_COUNT, hparams.n_layer);
+if (hparams.n_layer &gt; LLAMA_MAX_LAYERS) {
+  throw std::runtime_error(
+    "invalid block_count: exceeds LLAMA_MAX_LAYERS");
+}</code></pre>
+      </div>
+      <div class="card card-green" style="margin-top: 14px;">
+        <div class="card-header">2. Defence in depth — clamp the loop</div>
+        <pre><code class="language-cpp">// set_swa_pattern
+const uint32_t n =
+  std::min(n_layer, (uint32_t) LLAMA_MAX_LAYERS);
+for (uint32_t il = 0; il &lt; n; ++il) { /* ... */ }</code></pre>
+      </div>
+    </div>
+    <div class="col">
+      <div class="textbox">
+        <p><span class="inline-tag tag-green">Fix #1</span> Rejects the malicious file the moment <code>block_count</code> is read &mdash; the same pattern already guards <code>n_expert</code>.</p>
+      </div>
+      <div class="textbox" style="margin-top: 14px;">
+        <p><span class="inline-tag tag-green">Fix #2</span> Contains any <em>future</em> unchecked path into the loop, even if a new caller forgets to validate.</p>
+      </div>
+      <div class="textbox" style="margin-top: 14px;">
+        <p><span class="inline-tag tag-red">Audit the rest</span> Every other <code>LLAMA_MAX_LAYERS</code>-sized array indexed by <code>n_layer</code> &mdash; <code>n_head_arr</code>, <code>n_head_kv_arr</code>, <code>n_ff_arr</code>, <code>recurrent_layer_arr</code>, <code>xielu_*</code>, <code>swiglu_clamp_*</code> &mdash; shares the bug.</p>
+      </div>
+    </div>
+  </div>
+</section>

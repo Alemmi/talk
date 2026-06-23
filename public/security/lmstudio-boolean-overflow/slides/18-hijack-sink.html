@@ -1,0 +1,28 @@
+<section>
+  <h2 class="section-title">The hijack &mdash; one indirect call</h2>
+  <div class="card card-red full-width">
+    <div class="card-header">ggml/src/ggml-backend.cpp</div>
+    <pre><code class="language-cpp">void ggml_backend_buffer_free(ggml_backend_buffer_t buffer) {
+  if (buffer == NULL) {                       // GADGET-1: first iter, blob[0] = 0 → returns silently
+    return;
+  }
+  if (buffer-&gt;iface.free_buffer != NULL) {    // HIJACK: indirect call through attacker-controlled vtable
+    buffer-&gt;iface.free_buffer(buffer);         //         resolved via the heap spray → stack-pivot gadget
+  }
+  delete buffer;
+}</code></pre>
+  </div>
+  <div class="two-col" style="margin-top: 16px;">
+    <div class="col">
+      <div class="textbox">
+        <p><span class="inline-tag tag-green">1st call</span> Buffer pointer = <code>NULL</code> (from <code>blob[0]</code>) &mdash; the <code>NULL</code> check short-circuits, nothing happens.</p>
+      </div>
+    </div>
+    <div class="col">
+      <div class="textbox" style="border-color: rgba(239,68,68,0.45); background: rgba(239,68,68,0.05);">
+        <p><span class="inline-tag tag-red">2nd call</span> Buffer = sprayed memory; <code>iface.free_buffer</code> resolves to a <strong>stack-pivot gadget</strong>. From here on, we own <code>RIP</code>.</p>
+      </div>
+    </div>
+  </div>
+  <p class="slide-note">No separate vtable corruption needed &mdash; we reuse an indirect call that already exists, reached during exception unwinding.</p>
+</section>

@@ -1,0 +1,17 @@
+<section>
+  <h2 class="section-title">The check that wasn&apos;t there</h2>
+  <div class="card card-red full-width">
+    <div class="card-header">src/llama-model.cpp &mdash; llama_model::load_hparams (excerpt)</div>
+    <pre><code class="language-cpp">ml.get_key(LLM_KV_CONTEXT_LENGTH,    hparams.n_ctx_train);
+ml.get_key(LLM_KV_EMBEDDING_LENGTH,  hparams.n_embd);
+ml.get_key(LLM_KV_BLOCK_COUNT,       hparams.n_layer);          // ◄ attacker u32 — no clamp
+ml.get_key(LLM_KV_EXPERT_COUNT,      hparams.n_expert, false);
+// ...
+GGML_ASSERT(hparams.n_expert      &lt;= LLAMA_MAX_EXPERTS);        // bounds check EXISTS for n_expert ...
+GGML_ASSERT(hparams.n_expert_used &lt;= hparams.n_expert);        // ... but NOT for n_layer above</code></pre>
+  </div>
+  <div class="textbox" style="margin-top: 20px;">
+    <p><span class="inline-tag tag-red">The asymmetry</span> <code>n_expert</code> is asserted against its array bound a few lines down. <code>n_layer</code> &mdash; which indexes <em>at least seven</em> <code>LLAMA_MAX_LAYERS</code>-sized arrays &mdash; gets none.</p>
+    <p><span class="inline-tag tag-purple">CWE-129 / CWE-1284</span> Improper validation of an array index, and of a quantity taken from input. The 32-bit <code>block_count</code> is consumed with no sanity bound whatsoever.</p>
+  </div>
+</section>
