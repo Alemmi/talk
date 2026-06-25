@@ -1327,3 +1327,41 @@ section:has(.fragment.visible[data-highlight="right"]) .flow-branch [data-branch
 
 .frame.frame-bad { border-color: rgba(239, 68, 68, 0.4); }
 .frame.frame-bad .frame-tick { color: var(--red); }
+
+/* ───────────────────────────────────────────────────────────
+   .dense — opt-in tightening for content-heavy slides so a code
+   card + a .gguf panel (or two cards) fit 720px without overlap.
+   Applied per-slide via <section class="dense">.
+   ─────────────────────────────────────────────────────────── */
+.reveal .slides section.dense { padding-top: 28px !important; }
+
+.dense .section-title {
+  font-size: 1.25em !important;
+  margin-bottom: 18px;
+  padding-bottom: 10px;
+}
+
+.dense .two-col { gap: 22px; margin-top: 4px; }
+
+.dense .card { margin: 0; }
+.dense .card-header { font-size: 0.5em; padding: 7px 16px; }
+.dense .card pre {
+  padding: 12px 16px !important;
+  font-size: 0.5em !important;
+  line-height: 1.4 !important;
+}
+.dense .card-list { padding: 12px 18px; }
+.dense .card-list li { font-size: 0.62em; padding: 5px 0; }
+
+.dense .textbox { padding: 16px 20px; font-size: 0.72em; line-height: 1.5; }
+
+.dense .styled-list { gap: 10px; }
+.dense .styled-list li { font-size: 0.72em; line-height: 1.45; margin: 0; padding: 4px 0; }
+
+.dense .slide-note { margin-top: 14px; font-size: 0.46em; line-height: 1.45; }
+
+/* full-width "what happens" explainer card under a dense slide's columns */
+.dense .steps { margin-top: 16px; }
+.dense .steps .card-header { font-size: 0.52em; }
+.dense .steps .card-list { padding: 12px 26px; }
+.dense .steps .card-list li { font-size: 0.72em; line-height: 1.5; padding: 5px 0; }

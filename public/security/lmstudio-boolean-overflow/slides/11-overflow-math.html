@@ -1,25 +1,26 @@
 <section>
-  <h2 class="section-title">The primitive &mdash; a controlled boolean spray</h2>
+  <h2 class="section-title">The primitive &mdash; a boolean write of <em>any length</em> we want</h2>
   <div class="stats-row">
     <div class="stat-card">
-      <div class="stat-value gradient-text">3852</div>
-      <div class="stat-label"><code>gemma3.block_count</code><br>drives <code>n_layer</code></div>
-    </div>
-    <div class="stat-card">
       <div class="stat-value gradient-text">512</div>
-      <div class="stat-label"><code>swa_layers</code> capacity<br>(2048 bytes)</div>
+      <div class="stat-label">where the array ends<br><code>swa_layers</code> (2048 B)</div>
     </div>
     <div class="stat-card">
-      <div class="stat-value gradient-text">3340</div>
-      <div class="stat-label">32-bit writes<br><em>past</em> the array</div>
+      <div class="stat-value gradient-text">n&minus;512</div>
+      <div class="stat-label">slots written <em>past</em> it<br>length is <strong>ours to pick</strong></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value gradient-text">2&sup3;&sup2;&minus;1</div>
+      <div class="stat-label">max iterations<br>(&asymp;16&nbsp;GB if we wanted)</div>
     </div>
     <div class="stat-card">
       <div class="stat-value gradient-text">0 / 1</div>
-      <div class="stat-label">each written value,<br>chosen via <code>swa_period</code></div>
+      <div class="stat-label">value per slot<br>placed via <code>swa_period</code></div>
     </div>
   </div>
   <div class="textbox" style="margin-top: 22px;">
-    <p><span class="inline-tag tag-red">CWE-787</span> <code>set_swa_pattern</code> writes <code>4 &times; 3852 = 15408</code> bytes into a 2048-byte array &mdash; <strong>13360 bytes of heap-relative out-of-bounds write</strong>, immediately after <code>swa_layers</code>.</p>
-    <p><span class="inline-tag tag-purple">Byte-stride control</span> Each written word is <code>0</code> or <code>1</code> depending on <code>il % swa_period</code>. By choosing <code>swa_period</code> we choose <em>which</em> offsets get a <code>1</code> &mdash; that is enough to forge a pointer out of repeated <code>1</code>s.</p>
+    <p><span class="inline-tag tag-red">CWE-787</span> The loop runs <code>il = 0 &hellip; n_layer</code> but the array stops at <code>512</code>. So <code>n_layer</code> is a <strong>length dial</strong>: every unit above 512 is one more 32-bit write past the end, all attacker-controlled.</p>
+    <p><span class="inline-tag tag-purple">What value we can write</span> Each word is the <em>boolean</em> <code>il % swa_period &lt; (swa_period&minus;1)</code> &mdash; only ever a <code>0</code> or a <code>1</code>, never an arbitrary byte. With <code>swa_period = 6</code> it is the repeating stencil <code>1&nbsp;1&nbsp;1&nbsp;1&nbsp;1&nbsp;0</code>: a <code>0</code> on every 6th slot, a <code>1</code> elsewhere.</p>
+    <p><span class="inline-tag tag-cyan">So how long <em>should</em> it be?</span> Exactly as long as it takes to reach the field we want to corrupt &mdash; not a digit more. We can&apos;t answer that yet: <strong>we have to see what lives after the array first</strong>. That is the next section &mdash; and it is what fixes the concrete <code>n_layer = 3852</code>.</p>
   </div>
 </section>

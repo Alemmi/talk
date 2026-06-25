@@ -1,50 +1,43 @@
-<section>
-  <h2 class="section-title">The destructor walks attacker pointers</h2>
+<section class="dense">
+  <h2 class="section-title">Unwinding walks our corrupted set</h2>
   <div class="two-col">
     <div class="col">
       <div class="card card-red">
-        <div class="card-header">src/llama-model.cpp</div>
+        <div class="card-header">src/llama-model.cpp &amp; llama-adapter.h</div>
         <pre><code class="language-cpp">llama_model::~llama_model() {
-  for (auto * lora : loras) {   // iterates corrupted buckets
-    delete lora;                // dispatch on attacker pointer
-  }
-}</code></pre>
-      </div>
-      <div class="card card-red" style="margin-top: 12px;">
-        <div class="card-header">src/llama-adapter.h</div>
-        <pre><code class="language-cpp">struct llama_adapter_lora {
-  llama_model * model = nullptr;
-  // ...
-  std::vector&lt;ggml_backend_buffer_ptr&gt; bufs; // each deleter → ggml_backend_buffer_free
-  ~llama_adapter_lora() = default;
-};</code></pre>
+  for (auto * lora : loras) {   // corrupted buckets
+    delete lora;                // delete on attacker ptr
+  }                             //  → ~llama_adapter_lora
+}
+struct llama_adapter_lora {
+  std::vector&lt;ggml_backend_buffer_ptr&gt; bufs;
+};            // each deleter → ggml_backend_buffer_free</code></pre>
       </div>
     </div>
     <div class="col">
-      <div class="flowchart">
-        <div class="flow-node flow-node-red">
-          <span class="flow-label">~llama_model</span>
-          <span class="flow-sub">iterates corrupted <code>loras</code></span>
-        </div>
-        <div class="flow-arrow">&darr;</div>
-        <div class="flow-node flow-node-red">
-          <span class="flow-label">delete lora</span>
-          <span class="flow-sub"><code>lora *</code> is attacker-shaped</span>
-        </div>
-        <div class="flow-arrow">&darr;</div>
-        <div class="flow-node flow-node-red">
-          <span class="flow-label">~llama_adapter_lora</span>
-          <span class="flow-sub">destroys the <code>bufs</code> vector</span>
-        </div>
-        <div class="flow-arrow">&darr;</div>
-        <div class="flow-node flow-node-red">
-          <span class="flow-label">ggml_backend_buffer_free</span>
-          <span class="flow-sub">per <code>unique_ptr</code> deleter</span>
-        </div>
-      </div>
-      <div class="textbox" style="margin-top: 12px;">
-        <p>The same OOB loop spilled into <code>loras</code>, so the set yields <strong>attacker-shaped <code>lora *</code></strong> &mdash; and the chain of destructors marches straight to a free.</p>
+      <div class="card card-blue">
+        <div class="card-header">the .gguf &mdash; ① is what corrupted loras</div>
+        <pre><code class="language-text">① corrupt        ◄ this is why loras is attacker-shaped
+   general.architecture = gemma3
+   gemma3.block_count   = 3852     (write length)
+   …sliding_window=4096  …pattern=6 (the 0/1 stencil)
+② spray
+   s.000000 … s.063999  = UINT8[65504]
+        ▲ loras / bufs now point in HERE
+③ payload + trigger
+   tokenizer.ggml.model = "t5"
+   tokenizer.ggml.precompiled_charsmap = …
+   tokenizer.ggml.tokens   ←  OMITTED</code></pre>
       </div>
     </div>
+  </div>
+  <div class="card card-red full-width steps">
+    <div class="card-header">what happens</div>
+    <ul class="card-list">
+      <li>unwinding runs <code>~llama_model</code>, which iterates the <code>loras</code> set.</li>
+      <li>① already overflowed <em>past</em> <code>pimpl</code> into <code>loras</code> &mdash; so every <code>lora *</code> is attacker-shaped, pointing <strong>into the spray ②</strong> at <code>0x100000001</code>.</li>
+      <li><code>delete lora</code> &rarr; <code>~llama_adapter_lora</code> destroys its <code>bufs</code> vector.</li>
+      <li>each buffer&apos;s deleter calls <code>ggml_backend_buffer_free</code> &mdash; on <strong>pointers we control</strong>.</li>
+    </ul>
   </div>
 </section>

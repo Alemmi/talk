@@ -1,0 +1,31 @@
+<section class="dense">
+  <h2 class="section-title">Building the 4&nbsp;GB &mdash; the spray <em>is</em> KV metadata</h2>
+  <div class="two-col">
+    <div class="col">
+      <div class="card card-blue">
+        <div class="card-header">what we append to the GGUF KV section</div>
+        <pre><code class="language-text">s.000000 : UINT8[ 65504 ]  ┐
+s.000001 : UINT8[ 65504 ]  │  each value = our chosen
+s.000002 : UINT8[ 65504 ]  │  bytes, repeated to
+   ...                     │  fill the whole chunk
+s.063999 : UINT8[ 65504 ]  ┘
+──────────────────────────────────────────
+ ~64,000  ×  65,504 B  ≈  4.19 GB sprayed</code></pre>
+      </div>
+      <div class="textbox" style="margin-top: 14px;">
+        <p>No special channel &mdash; the spray is just <strong>tens of thousands of ordinary KV entries</strong> with unique keys (<code>s.000000</code>&hellip;), in the same metadata block as <code>block_count</code>.</p>
+      </div>
+    </div>
+    <div class="col">
+      <div class="textbox">
+        <p><span class="inline-tag tag-red">Why it must be ~4&nbsp;GB</span> The heap starts <strong>low</strong> (non-PIE) and <code>0x100000001</code> sits at the <strong>~4&nbsp;GiB mark</strong>. Only by allocating that much do the chunks grow <em>contiguously</em> up to the target &mdash; spray less and we never reach it.</p>
+      </div>
+      <div class="textbox" style="margin-top: 14px;">
+        <p><span class="inline-tag tag-purple">Why uniform ~64&nbsp;KiB chunks</span> One multi-GB value would land in an unpredictable <code>mmap</code> region. Many equal allocations of <code>65,504</code>&nbsp;B (value + allocator overhead = a clean ~64&nbsp;KiB chunk) instead pack <strong>back-to-back</strong> &mdash; gap-free, predictable coverage.</p>
+      </div>
+      <div class="textbox" style="margin-top: 14px;">
+        <p><span class="inline-tag tag-green">Why <code>UINT8</code> arrays</span> The bytes we plant are full of <code>NUL</code>s; a string KV would truncate at the first one. A <code>UINT8</code> array stores every byte verbatim.</p>
+      </div>
+    </div>
+  </div>
+</section>

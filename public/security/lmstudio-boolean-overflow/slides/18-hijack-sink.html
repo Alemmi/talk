@@ -1,28 +1,37 @@
-<section>
-  <h2 class="section-title">The hijack &mdash; one indirect call</h2>
-  <div class="card card-red full-width">
-    <div class="card-header">ggml/src/ggml-backend.cpp</div>
-    <pre><code class="language-cpp">void ggml_backend_buffer_free(ggml_backend_buffer_t buffer) {
-  if (buffer == NULL) {                       // GADGET-1: first iter, blob[0] = 0 → returns silently
-    return;
-  }
-  if (buffer-&gt;iface.free_buffer != NULL) {    // HIJACK: indirect call through attacker-controlled vtable
-    buffer-&gt;iface.free_buffer(buffer);         //         resolved via the heap spray → stack-pivot gadget
-  }
+<section class="dense">
+  <h2 class="section-title">The hijack &mdash; where <code>free_buffer</code> comes from</h2>
+  <div class="two-col">
+    <div class="col">
+      <div class="card card-red">
+        <div class="card-header">ggml/src/ggml-backend.cpp</div>
+        <pre><code class="language-cpp">void ggml_backend_buffer_free(
+        ggml_backend_buffer_t buffer) {
+  if (buffer == NULL) return;          // ◄ 1st: NULL → no-op
+  if (buffer-&gt;iface.free_buffer != NULL)
+    buffer-&gt;iface.free_buffer(buffer); // ◄ 2nd: read field, call it
   delete buffer;
 }</code></pre>
-  </div>
-  <div class="two-col" style="margin-top: 16px;">
-    <div class="col">
-      <div class="textbox">
-        <p><span class="inline-tag tag-green">1st call</span> Buffer pointer = <code>NULL</code> (from <code>blob[0]</code>) &mdash; the <code>NULL</code> check short-circuits, nothing happens.</p>
       </div>
     </div>
     <div class="col">
-      <div class="textbox" style="border-color: rgba(239,68,68,0.45); background: rgba(239,68,68,0.05);">
-        <p><span class="inline-tag tag-red">2nd call</span> Buffer = sprayed memory; <code>iface.free_buffer</code> resolves to a <strong>stack-pivot gadget</strong>. From here on, we own <code>RIP</code>.</p>
+      <div class="card card-blue">
+        <div class="card-header">buffer points into memory WE planted</div>
+        <pre><code class="language-text">buffer ─►  our bytes (the planted blob)
+   +0  : 00 00 … 00   ← buffer #1 = NULL → no-op
+   +8  : 0x236f81c    ← READ as buffer->iface.free_buffer
+                         …then CALLed → the pivot gadget
+   +32 : ROP chain
+  +160 : "cmd\0"</code></pre>
       </div>
     </div>
   </div>
-  <p class="slide-note">No separate vtable corruption needed &mdash; we reuse an indirect call that already exists, reached during exception unwinding.</p>
+  <div class="card card-red full-width steps">
+    <div class="card-header">how we control <code>free_buffer</code> &mdash; without ever overwriting it</div>
+    <ul class="card-list">
+      <li>the <code>bufs</code> vector makes <code>ggml_backend_buffer_free</code> run <strong>twice</strong>; both <code>buffer</code> pointers come from the corrupted <code>bufs</code>, so they point <strong>into memory we filled</strong>.</li>
+      <li>buffer&nbsp;#1 = <code>NULL</code> &rarr; the check returns. <strong>It must be NULL</strong>, else it derefs garbage and crashes <em>before</em> the pivot.</li>
+      <li>buffer&nbsp;#2 points at our bytes, so <code>buffer-&gt;iface.free_buffer</code> is <strong>read from them</strong> (offset <code>+8</code>) = the gadget <code>0x236f81c</code>. We never write the field &mdash; <strong>we own the memory it&apos;s read from</strong>.</li>
+      <li>the indirect call <code>buffer-&gt;iface.free_buffer(buffer)</code> then jumps there &rarr; we own <code>RIP</code>. No vtable corruption needed.</li>
+    </ul>
+  </div>
 </section>

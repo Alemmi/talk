@@ -1,4 +1,4 @@
-<section>
+<section class="dense">
   <h2 class="section-title">What lives right after <code>swa_layers</code></h2>
   <div class="two-col">
     <div class="col">
@@ -33,8 +33,8 @@ private:
         <p><span class="inline-tag tag-red">Adjacency is destiny</span> <code>vocab</code> sits immediately after <code>hparams</code>, and <code>llama_vocab</code> is a thin wrapper around a <strong>single 8-byte pointer</strong>.</p>
         <p>So the byte offset from <code>swa_layers</code> to <code>vocab.pimpl</code> is a <strong>compile-time constant</strong> &mdash; same in every build, no info-leak required.</p>
       </div>
-      <div class="textbox" style="margin-top: 14px;">
-        <p>Keep going and the OOB writes reach <code>loras</code> &mdash; the set the destructor iterates. We will corrupt <em>both</em> with one loop.</p>
+      <div class="textbox" style="margin-top: 14px; border-color: rgba(239,68,68,0.45); background: rgba(239,68,68,0.05);">
+        <p><span class="inline-tag tag-red">Our real target: <code>loras</code></span> One loop corrupts <em>both</em>. <code>vocab.pimpl</code> is just the <strong>first victim</strong> &mdash; the clean proof we can forge a controlled pointer at a constant offset. The field we actually <strong>weaponise is <code>loras</code></strong>: <code>~llama_model</code> walks it, and <em>that</em> walk is what becomes code execution. Watch <code>loras</code> from here on.</p>
       </div>
     </div>
   </div>
